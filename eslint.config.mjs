@@ -1,8 +1,17 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import ignore from "./.style/ignore.default.mjs";
 import { JsConfig, JsonConfig, TsConfig } from "style-eslint/lint.mjs";
+import path from "node:path";
 
-const ignoreList = ignore.retrieveIgnoreList();
+const stylesFolder = "./styles";
+
+const ignoreMainList = ignore.retrieveIgnoreList();
+
+const ignoreStylesList = ignore
+    .retrieveIgnoreList(path.join(stylesFolder, ".gitignore"))
+    .map((rule) => path.join(stylesFolder, rule));
+
+const ignoreList = ignoreMainList.concat(ignoreStylesList);
 
 export default defineConfig([
     globalIgnores(ignoreList),
