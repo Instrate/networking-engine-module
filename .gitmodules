@@ -1,3 +1,4 @@
 [submodule ".style"]
 	path = .style
 	url = https://github.com/Instrate/style-eslint.git
+	branch = main
