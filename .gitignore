@@ -64,3 +64,6 @@ yarn.lock
 
 # ESLint cache
 .eslintcache
+
+# Logs
+/logs

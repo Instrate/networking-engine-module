@@ -1,0 +1,14 @@
+{
+    "level": "debug",
+    "transports": {
+        "console": {
+            "enabled": true
+        },
+        "file": {
+            "enabled": true,
+            "dir": "logs",
+            "fileName": "%DATE%",
+            "ext": ".log"
+        }
+    }
+}
