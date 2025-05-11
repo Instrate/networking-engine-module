@@ -9,31 +9,31 @@ import { Type } from "class-transformer";
 export class IConfigCoreControllerVersionHeaders {
     @IsNotEmpty()
     @IsString()
-    api: string;
+    readonly api: string;
 
     @IsNotEmpty()
     @IsString()
-    preferable: string;
+    readonly preferable: string;
 }
 
 export class IConfigCoreControllerVersion {
     @ValidateNested()
     @Type(() => IConfigCoreControllerVersionHeaders)
-    headers: IConfigCoreControllerVersionHeaders;
+    readonly headers: IConfigCoreControllerVersionHeaders;
 
     @IsNotEmpty()
     @IsNumberString()
-    iteration: string;
+    readonly iteration: string;
 }
 
 export class IConfigCoreController {
     @ValidateNested()
     @Type(() => IConfigCoreControllerVersion)
-    version: IConfigCoreControllerVersion;
+    readonly version: IConfigCoreControllerVersion;
 }
 
 export class IConfigCore {
     @ValidateNested()
     @Type(() => IConfigCoreController)
-    controllers: IConfigCoreController;
+    readonly controllers: IConfigCoreController;
 }

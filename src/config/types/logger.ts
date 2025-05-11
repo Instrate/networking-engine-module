@@ -20,35 +20,35 @@ export const TALoggerLevels: Array<TLoggerLevel> = [
 
 export class IConfigLoggerTransport {
     @IsBoolean()
-    enabled: boolean;
+    readonly enabled: boolean;
 }
 
 export class IConfigLoggerTransportFile extends IConfigLoggerTransport {
     @IsNotEmpty()
     @IsString()
-    dir: string;
+    readonly dir: string;
 
     @IsNotEmpty()
     @IsString()
-    fileName: string;
+    readonly fileName: string;
 
     @IsNotEmpty()
     @IsString()
-    format: string;
+    readonly format: string;
 
     @IsNotEmpty()
     @IsString()
-    ext: string;
+    readonly ext: string;
 }
 
 export class IConfigLoggerTransports {
     @ValidateNested()
     @Type(() => IConfigLoggerTransport)
-    console: IConfigLoggerTransport;
+    readonly console: IConfigLoggerTransport;
 
     @ValidateNested()
     @Type(() => IConfigLoggerTransportFile)
-    file: IConfigLoggerTransportFile;
+    readonly file: IConfigLoggerTransportFile;
 }
 
 export class IConfigLogger {
@@ -56,9 +56,9 @@ export class IConfigLogger {
     @IsString()
     @IsIn(TALoggerLevels)
     @Type(() => String)
-    level: string;
+    readonly level: string;
 
     @ValidateNested()
     @Type(() => IConfigLoggerTransports)
-    transports: IConfigLoggerTransports;
+    readonly transports: IConfigLoggerTransports;
 }

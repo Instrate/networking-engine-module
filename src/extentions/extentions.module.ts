@@ -1,4 +1,11 @@
 import { Module } from "@nestjs/common";
+import { IExtentionsModule } from "./extentions.interface";
 
-@Module({})
-export class ExtentionsModule {}
+@Module({
+    imports: []
+})
+export class ExtentionsModule implements IExtentionsModule {
+    async onModuleInit() {
+        console.log("ExtentionsModule initialized");
+    }
+}

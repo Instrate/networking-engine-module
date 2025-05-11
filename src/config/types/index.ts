@@ -3,17 +3,22 @@ import { ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { IConfigApplication } from "./application";
 import { IConfigCore } from "./core";
+import { IConfigPlugins } from "./plugins";
 
 export class IConfig {
     @ValidateNested()
     @Type(() => IConfigLogger)
-    logger: IConfigLogger;
+    readonly logger: IConfigLogger;
 
     @ValidateNested()
     @Type(() => IConfigApplication)
-    application: IConfigApplication;
+    readonly application: IConfigApplication;
 
     @ValidateNested()
     @Type(() => IConfigCore)
-    core: IConfigCore;
+    readonly core: IConfigCore;
+
+    @ValidateNested()
+    @Type(() => IConfigPlugins)
+    readonly plugins: IConfigPlugins;
 }

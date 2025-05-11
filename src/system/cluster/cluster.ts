@@ -22,7 +22,12 @@ export class ClusterFactory {
         }
 
         cluster.on("exit", (worker, code, signal) => {
-            logger.fatal("Worker died. Restarting");
+            let message = "Worker died.";
+            if (!config.application.cluster.restart) {
+                logger.error(message);
+                return;
+            }
+            logger.error(message + " Restarting...");
             cluster.fork();
         });
     }

@@ -2,6 +2,7 @@
     "port": 2848,
     "cluster": {
         "enable": true,
-        "amount": 1
+        "amount": 1,
+        "restart": false
     }
 }

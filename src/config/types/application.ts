@@ -4,21 +4,24 @@ import { Type } from "class-transformer";
 
 export class IConfigApplicationCluster {
     @IsBoolean()
-    enable: boolean;
+    readonly enable: boolean;
 
     @IsNumber()
     @Min(0)
     @Max(os.cpus().length)
-    amount: number;
+    readonly amount: number;
+
+    @IsBoolean()
+    readonly restart: boolean;
 }
 
 export class IConfigApplication {
     @IsNumber()
     @Min(1024)
     @Max(49151)
-    port: number;
+    readonly port: number;
 
     @ValidateNested()
     @Type(() => IConfigApplicationCluster)
-    cluster: IConfigApplicationCluster;
+    readonly cluster: IConfigApplicationCluster;
 }

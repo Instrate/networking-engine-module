@@ -25,6 +25,8 @@ async function bootstrap() {
         header: config.core.controllers.version.headers.api
     });
 
+    app.enableShutdownHooks();
+
     await app.listen(config.application.port, "0.0.0.0", () => {
         logger.debug(`Application started on port ${config.application.port}`);
     });

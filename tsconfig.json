@@ -20,9 +20,12 @@
         "strictBindCallApply": true,
         "noFallthroughCasesInSwitch": true,
         "esModuleInterop": true,
+        "resolveJsonModule": true,
         "paths": {
             "@config": ["src/config"],
-            "@logger": ["src/core/logger/winston"]
+            "@logger": ["src/core/logger/winston"],
+            "@extentions/*": ["src/extentions/*"],
+            "@plugins/*": ["src/plugins/*"]
         }
     }
 }

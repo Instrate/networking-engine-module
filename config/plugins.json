@@ -1,0 +1,14 @@
+{
+    "list": [
+        {
+            "name": "database",
+            "type": "module",
+            "extentions": [
+                {
+                    "name": "sqlite",
+                    "type": "module"
+                }
+            ]
+        }
+    ]
+}
