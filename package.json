@@ -1,56 +1,56 @@
 {
-  "name": "networking-engine-module",
-  "version": "0.0.1",
-  "description": "",
-  "author": "Instrate",
-  "engines": {
-    "npm": ">=10.5"
-  },
-  "scripts": {
-    "build": "nest build",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "lint": "eslint --fix --cache",
-    "lint:debug": "eslint --fix --cache --debug",
-    "husky:init": "husky init",
-    "prepare": "husky"
-  },
-  "dependencies": {
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/core": "^11.0.1",
-    "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/platform-fastify": "^11.1.0",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.2",
-    "config": "^3.3.12",
-    "husky": "^9.1.7",
-    "nest-winston": "^1.10.2",
-    "nestjs-pino": "^4.4.0",
-    "pino-http": "^10.4.0",
-    "pino-pretty": "^13.0.0",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "sqlite3": "^5.1.7",
-    "typeorm": "^0.3.23",
-    "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
-  },
-  "devDependencies": {
-    "@nestjs/cli": "^11.0.0",
-    "@nestjs/schematics": "^11.0.0",
-    "@swc/cli": "^0.6.0",
-    "@swc/core": "^1.11.24",
-    "@types/config": "^3.3.5",
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.10.7",
-    "globals": "^16.0.0",
-    "source-map-support": "^0.5.21",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3"
-  },
-  "optionalDependencies": {
-    "style-eslint": "./.style/versions/node18"
-  }
+    "name": "networking-engine-module",
+    "version": "0.0.1",
+    "description": "",
+    "author": "Instrate",
+    "engines": {
+        "npm": ">=10.5"
+    },
+    "scripts": {
+        "build": "nest build",
+        "start": "nest start",
+        "start:dev": "nest start --watch",
+        "start:debug": "nest start --debug --watch",
+        "start:prod": "node dist/main",
+        "lint": "eslint --fix --cache",
+        "lint:debug": "eslint --fix --cache --debug",
+        "husky:init": "husky init",
+        "prepare": "husky"
+    },
+    "dependencies": {
+        "@nestjs/common": "^11.0.1",
+        "@nestjs/core": "^11.0.1",
+        "@nestjs/platform-express": "^11.0.1",
+        "@nestjs/platform-fastify": "^11.1.0",
+        "class-transformer": "^0.5.1",
+        "class-validator": "^0.14.2",
+        "config": "^3.3.12",
+        "husky": "^9.1.7",
+        "nest-winston": "^1.10.2",
+        "nestjs-pino": "^4.4.0",
+        "pino-http": "^10.4.0",
+        "pino-pretty": "^13.0.0",
+        "reflect-metadata": "^0.2.2",
+        "rxjs": "^7.8.1",
+        "sqlite3": "^5.1.7",
+        "typeorm": "^0.3.23",
+        "winston": "^3.17.0",
+        "winston-daily-rotate-file": "^5.0.0"
+    },
+    "devDependencies": {
+        "@nestjs/cli": "^11.0.0",
+        "@nestjs/schematics": "^11.0.0",
+        "@swc/cli": "^0.6.0",
+        "@swc/core": "^1.11.24",
+        "@types/config": "^3.3.5",
+        "@types/express": "^5.0.0",
+        "@types/node": "^22.10.7",
+        "globals": "^16.0.0",
+        "source-map-support": "^0.5.21",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^5.7.3"
+    },
+    "optionalDependencies": {
+        "style-eslint": "./.style/versions/node18"
+    }
 }
