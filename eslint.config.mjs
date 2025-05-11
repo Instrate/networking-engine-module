@@ -11,7 +11,9 @@ const ignoreStylesList = ignore
     .retrieveIgnoreList(path.join(stylesFolder, ".gitignore"))
     .map((rule) => path.join(stylesFolder, rule));
 
-const ignoreList = ignoreMainList.concat(ignoreStylesList);
+const ignoreList = ignoreMainList
+    .concat(ignoreStylesList)
+    .concat([".obsidian/", stylesFolder]);
 
 export default defineConfig([
     globalIgnores(ignoreList),
