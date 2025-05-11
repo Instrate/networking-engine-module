@@ -5,24 +5,27 @@ import logger from "@logger";
 
 @Module({})
 export abstract class PluginsModule {
-    constructor(protected readonly lazyModuleLoader: LazyModuleLoader) {}
+    constructor(
+        protected readonly lazyModuleLoader: LazyModuleLoader,
+        private readonly moduleName: string
+    ) {}
 
-    protected async loadExtentions(moduleName: string) {
-        const extentions = getPluginExtentions(moduleName);
+    public async loadExtentions() {
+        const extentions = getPluginExtentions(this.moduleName);
         for (const { name, value } of extentions) {
             await (async () => {
-                logger.debug(`Loading extention ${moduleName}/${name}`);
+                logger.debug(`Loading extention ${this.moduleName}/${name}`);
                 const moduleRef = await this.lazyModuleLoader.load(value);
                 if (!!moduleRef) {
-                    logger.debug(`Extention ${moduleName}/${name} loaded`);
+                    logger.debug(`Extention ${this.moduleName}/${name} loaded`);
                 } else {
                     logger.error(
-                        `Extention ${moduleName}/${name} not loaded: unknown error`
+                        `Extention ${this.moduleName}/${name} not loaded: unknown error`
                     );
                 }
             })().catch((err) => {
                 logger.error(
-                    `Extention ${moduleName}/${name} not loaded: ${err.message}`
+                    `Extention ${this.moduleName}/${name} not loaded: ${err.message}`
                 );
             });
         }

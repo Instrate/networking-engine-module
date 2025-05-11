@@ -2,6 +2,7 @@ import { Module, OnModuleInit } from "@nestjs/common";
 import { getPlugins } from "@plugins/util";
 import { LazyModuleLoader } from "@nestjs/core";
 import logger from "@logger";
+import { PluginsModule } from "@plugins/plugins.module";
 
 @Module({
     imports: []
@@ -16,7 +17,10 @@ export class SystemModule implements OnModuleInit {
                 logger.debug(`Loading [${name}] plugin`);
                 const moduleRef = await this.lazyModuleLoader.load(value);
                 if (!!moduleRef) {
-                    logger.debug(`Plugin ${name} loaded`);
+                    const test: PluginsModule = moduleRef.get(value());
+                    await test.loadExtentions().then(() => {
+                        logger.debug(`Plugin ${name} loaded`);
+                    });
                 } else {
                     logger.error(`Plugin ${name} not loaded: unknown error`);
                 }

@@ -5,7 +5,5 @@ import { IExtentionsModule } from "./extentions.interface";
     imports: []
 })
 export class ExtentionsModule implements IExtentionsModule {
-    async onModuleInit() {
-        console.log("ExtentionsModule initialized");
-    }
+    constructor() {}
 }

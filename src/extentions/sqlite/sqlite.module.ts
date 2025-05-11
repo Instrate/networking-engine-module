@@ -5,7 +5,5 @@ import { ExtentionsModule } from "@extentions/extentions.module";
 export default class SqliteModule extends ExtentionsModule {
     constructor() {
         super();
-
-        throw new Error("not implemented");
     }
 }
