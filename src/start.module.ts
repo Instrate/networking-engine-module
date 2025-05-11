@@ -2,11 +2,11 @@ import { Logger, Module } from "@nestjs/common";
 import { SystemModule } from "./system/system.module";
 import { CoreModule } from "./core/core.module";
 import { PluginsModule } from "./plugins/plugins.module";
-import { AppControllerV1 } from "./app.controller.v1";
+import { ExtentionsModule } from "./extentions/extentions.module";
 
 @Module({
-    imports: [SystemModule, CoreModule, PluginsModule],
-    controllers: [AppControllerV1],
+    imports: [SystemModule, CoreModule, PluginsModule, ExtentionsModule],
+    controllers: [],
     providers: [Logger]
 })
-export class AppModule {}
+export class StartModule {}

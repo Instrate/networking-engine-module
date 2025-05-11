@@ -64,3 +64,16 @@ yarn.lock
 
 # ESLint cache
 .eslintcache
+
+# Config
+#/config
+
+# Git
+.git/
+.gitignore
+.gitmodules
+.style/
+
+
+# IDE - obsidian
+/.obsidian

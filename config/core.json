@@ -1,0 +1,11 @@
+{
+    "controllers": {
+        "version": {
+            "headers": {
+                "api": "X-Api-Version",
+                "preferable": "X-Api-Version-Latest"
+            },
+            "iteration": "1"
+        }
+    }
+}

@@ -1,3 +1,7 @@
 {
-    "port": 2848
+    "port": 2848,
+    "cluster": {
+        "enable": true,
+        "amount": 1
+    }
 }

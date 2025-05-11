@@ -1,30 +1,73 @@
 import * as winston from "winston";
 import "winston-daily-rotate-file";
-import { WinstonModule, utilities } from "nest-winston";
+import { WinstonModule } from "nest-winston";
 import { LoggerService } from "@nestjs/common";
 import config from "@config";
+import { TransformableInfo } from "logform";
 
-const consoleTransport = config.logger.transports.console
+const pid = `PID #${process.pid.toString().padEnd(5)}`;
+
+const timestampFormat = "HH:mm:ss";
+
+function prepareMs(ms: string) {
+    return `${ms}`;
+}
+
+function prepareLevel(level: string) {
+    let res = level;
+    let pad = 6;
+    if (res.length <= 6) {
+        res = level.toUpperCase().padStart(pad, " ");
+        return res;
+    }
+    res =
+        level.slice(0, 5) +
+        level.slice(5).replace("\x1B[39m", "").toUpperCase() +
+        "\x1B[39m";
+    pad = 15;
+    res = `[${res.padEnd(pad, " ")}]`;
+    return res;
+}
+
+function printfConsole({
+    timestamp,
+    level,
+    message,
+    ms,
+    label,
+    ..._
+}: TransformableInfo) {
+    return `|${timestamp}| ${label} | - ${prepareLevel(level)} ${prepareMs(ms as string)}\n${message}\n`;
+}
+
+function printfFile({
+    timestamp,
+    level,
+    message,
+    label,
+    ..._
+}: TransformableInfo) {
+    return `|${timestamp}|${label}|${prepareLevel(level)}: ${message}`;
+}
+
+const consoleTransport = config.logger.transports.console.enabled
     ? new winston.transports.Console({
           format: winston.format.combine(
-              winston.format.timestamp(),
+              winston.format.timestamp({ format: timestampFormat }),
               winston.format.ms(),
-              utilities.format.nestLike(process.env.npm_package_name, {
-                  colors: true,
-                  prettyPrint: true,
-                  processId: true,
-                  appName: true
-              })
+              winston.format.colorize({ level: true, message: false }),
+              winston.format.label({ label: pid, message: false }),
+              winston.format.printf(printfConsole)
           )
       })
     : null;
 
-const fileTransport = config.logger.transports.file
+const fileTransport = config.logger.transports.file.enabled
     ? new winston.transports.DailyRotateFile({
           dirname: config.logger.transports.file.dir,
           filename: config.logger.transports.file.fileName,
           extension: config.logger.transports.file.ext,
-          datePattern: "DD.MM.YYYY",
+          datePattern: config.logger.transports.file.format,
           zippedArchive: true,
           maxSize: "1m",
           maxFiles: "1d",
@@ -33,13 +76,9 @@ const fileTransport = config.logger.transports.file
               flags: "a+"
           },
           format: winston.format.combine(
-              winston.format.timestamp({ format: "HH:mm:ss" }),
-              utilities.format.nestLike(process.env.npm_package_name, {
-                  colors: false,
-                  prettyPrint: false,
-                  processId: true,
-                  appName: false
-              })
+              winston.format.timestamp({ format: timestampFormat }),
+              winston.format.label({ label: pid, message: false }),
+              winston.format.printf(printfFile)
           )
       })
     : null;

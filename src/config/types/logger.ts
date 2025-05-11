@@ -34,6 +34,10 @@ export class IConfigLoggerTransportFile extends IConfigLoggerTransport {
 
     @IsNotEmpty()
     @IsString()
+    format: string;
+
+    @IsNotEmpty()
+    @IsString()
     ext: string;
 }
 

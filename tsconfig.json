@@ -21,7 +21,8 @@
         "noFallthroughCasesInSwitch": true,
         "esModuleInterop": true,
         "paths": {
-            "@config": ["src/config"]
+            "@config": ["src/config"],
+            "@logger": ["src/core/logger/winston"]
         }
     }
 }

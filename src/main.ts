@@ -1,16 +1,17 @@
 import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import logger from "./core/logger/winston";
+import { StartModule } from "./start.module";
+import logger from "@logger";
 import config from "@config";
 import { LoggerService, VersioningType } from "@nestjs/common";
 import {
     FastifyAdapter,
     NestFastifyApplication
 } from "@nestjs/platform-fastify";
+import { ClusterFactory } from "./system/cluster/cluster";
 
 async function bootstrap() {
     const app = await NestFactory.create<NestFastifyApplication>(
-        AppModule,
+        StartModule,
         // TODO: apply winston
         new FastifyAdapter(),
         {
@@ -21,12 +22,12 @@ async function bootstrap() {
 
     app.enableVersioning({
         type: VersioningType.HEADER,
-        header: "X-Api-Version"
+        header: config.core.controllers.version.headers.api
     });
 
     await app.listen(config.application.port, "0.0.0.0", () => {
-        logger.log(`Application started on port ${config.application.port}`);
+        logger.debug(`Application started on port ${config.application.port}`);
     });
 }
 
-bootstrap();
+ClusterFactory.clusterize(bootstrap);
