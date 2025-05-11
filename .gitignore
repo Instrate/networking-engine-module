@@ -1,13 +1,13 @@
 # npm
-/.npm-cache
+.npm-cache/
 
 # compiled output
-/dist
-/node_modules
-/build
+dist/
+node_modules/
+build/
 
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 pnpm-debug.log*
@@ -19,11 +19,11 @@ lerna-debug.log*
 .DS_Store
 
 # Tests
-/coverage
-/.nyc_output
+coverage/
+.nyc_output/
 
 # IDEs and editors
-/.idea
+.idea/
 .project
 .classpath
 .c9/
