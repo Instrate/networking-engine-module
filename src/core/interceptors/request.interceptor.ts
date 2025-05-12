@@ -50,7 +50,10 @@ export class RequestInterceptor implements NestInterceptor {
         logRequest(request);
         return next.handle().pipe(
             map((response: object | IResponse) => {
-                if ("status" in response) {
+                if (
+                    typeof response === "object" &&
+                    !!(response as IResponse)?.status
+                ) {
                     return response;
                 }
                 return {
@@ -61,7 +64,7 @@ export class RequestInterceptor implements NestInterceptor {
                         ] ?? HttpStatus.OK
                 };
             }),
-            tap(({ data }) => logResponse(request, parseData(data))),
+            tap(({ data }: IResponse) => logResponse(request, parseData(data))),
             map(({ status, data }: IResponse) => {
                 reply.status(status).send(data);
             })
