@@ -1,7 +1,7 @@
 import { Controller, Get, Req, Res } from "@nestjs/common";
 import { FastifyReply, FastifyRequest } from "fastify";
 import os from "node:os";
-import { bytesToGb } from "../../../../utils/conversion";
+import { bytesToGb } from "@core/utils/conversion";
 
 @Controller({
     version: "1",

@@ -1,7 +1,8 @@
+import "reflect-metadata";
 import { Logger, Module, OnApplicationShutdown } from "@nestjs/common";
-import { SystemModule } from "./system/system.module";
-import { CoreModule } from "./core/core.module";
+import { CoreModule } from "@core/core.module";
 import logger from "@logger";
+import { SystemModule } from "@core/system/system.module";
 
 @Module({
     imports: [SystemModule, CoreModule],

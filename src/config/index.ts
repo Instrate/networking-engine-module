@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "node:path";
 import { IConfig } from "./types";
-import { validateSchemaThrowable } from "../system/validator";
+import { validateSchemaThrowable } from "@core/system/validator";
 
 const configDir = path.join(__dirname, "../../config");
 

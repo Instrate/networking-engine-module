@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ControllersModule } from "./controllers/controllers.module";
-import { VersionInterceptorProvider } from "./interceptors/version.interceptor";
-import { RequestInterceptorProvider } from "./interceptors/request.interceptor";
+import { VersionInterceptorProvider } from "../interceptors/version.interceptor";
+import { RequestInterceptorProvider } from "../interceptors/request.interceptor";
 
 const interceptorsOrder = [
     VersionInterceptorProvider,

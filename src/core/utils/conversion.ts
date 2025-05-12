@@ -1,7 +1,5 @@
 const kb = 1024;
-
 const mb = kb * 1024;
-
 const gb = mb * 1024;
 
 export function truncWithTail(val: number, digitsAmountToKeep: number = 0) {

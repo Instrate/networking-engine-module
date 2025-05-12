@@ -25,7 +25,8 @@
             "@config": ["src/config"],
             "@logger": ["src/core/logger/winston"],
             "@extentions/*": ["src/extentions/*"],
-            "@plugins/*": ["src/plugins/*"]
+            "@plugins/*": ["src/plugins/*"],
+            "@core/*": ["src/core/*"]
         }
     }
 }

@@ -1,9 +1,6 @@
-import { Module } from "@nestjs/common";
 import { IExtentionsModule } from "./extentions.interface";
+import { IInjectableModule, TMetaModule } from "@plugins/plugins.interface";
 
-@Module({
-    imports: []
-})
-export class ExtentionsModule implements IExtentionsModule {
-    constructor() {}
-}
+export abstract class AExtentionsModule implements IExtentionsModule {}
+
+export type TExtention = TMetaModule<IInjectableModule<AExtentionsModule>>;

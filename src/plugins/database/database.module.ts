@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
 import { getInternalPluginName } from "@plugins/util";
-import { PluginsModule } from "@plugins/plugins.module";
+import { APluginsModule } from "@plugins/plugins.module";
 import { LazyModuleLoader } from "@nestjs/core";
 
 const moduleName = getInternalPluginName(__dirname);
@@ -10,9 +10,8 @@ const moduleName = getInternalPluginName(__dirname);
     imports: [],
     providers: [DatabaseService]
 })
-export default class DatabaseModule extends PluginsModule {
+export default class DatabaseModule extends APluginsModule {
     constructor(protected readonly lazyModuleLoader: LazyModuleLoader) {
         super(lazyModuleLoader, moduleName);
-        // this.loadExtentions();
     }
 }

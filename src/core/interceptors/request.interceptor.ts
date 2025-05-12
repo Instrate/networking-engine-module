@@ -8,7 +8,7 @@ import {
 import { map, Observable, tap } from "rxjs";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { APP_INTERCEPTOR } from "@nestjs/core";
-import { IResponse } from "../app.types";
+import { IResponse } from "../app/app.types";
 import logger from "@logger";
 import config from "@config";
 

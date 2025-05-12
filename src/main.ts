@@ -7,7 +7,7 @@ import {
     FastifyAdapter,
     NestFastifyApplication
 } from "@nestjs/platform-fastify";
-import { ClusterFactory } from "./system/cluster/cluster";
+import { ClusterFactory } from "@core/system/cluster/cluster";
 
 async function bootstrap() {
     const app = await NestFactory.create<NestFastifyApplication>(
