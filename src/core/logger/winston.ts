@@ -14,19 +14,18 @@ function prepareMs(ms: string) {
 }
 
 function prepareLevel(level: string) {
-    let res = level;
-    let pad = 6;
-    if (res.length <= 6) {
-        res = level.toUpperCase().padStart(pad, " ");
-        return res;
-    }
-    res =
+    let res =
         level.slice(0, 5) +
-        level.slice(5).replace("\x1B[39m", "").toUpperCase() +
-        "\x1B[39m";
-    pad = 15;
-    res = `[${res.padEnd(pad, " ")}]`;
+        level.slice(5, -4).replace("\x1B[39m", "").toUpperCase() +
+        "\x1B[39m" +
+        "]";
+    let pad = 16;
+    res = `[${res.padEnd(pad, " ")}`;
     return res;
+}
+
+function prepareLevelUncolored(level: string) {
+    return `${("[" + level.toUpperCase()).padStart(8, " ")}]`;
 }
 
 function printfConsole({
@@ -47,7 +46,7 @@ function printfFile({
     label,
     ..._
 }: TransformableInfo) {
-    return `|${timestamp}|${label}|${prepareLevel(level)}: ${message}`;
+    return `|${timestamp}|${label}|${prepareLevelUncolored(level)}: ${message}`;
 }
 
 const consoleTransport = config.logger.transports.console.enabled
