@@ -1,5 +1,5 @@
 import { IsBooleanString, IsEnum } from "class-validator";
-import { EInjectableState } from "@plugins/plugins.interface";
+import { EInjectableState } from "@core/system/plugins/plugins.interface";
 
 export class SystemPluginsRunningDtoQuery {
     @IsBooleanString()

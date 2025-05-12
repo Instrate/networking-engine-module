@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
-import { getInternalPluginName } from "@plugins/util";
-import { APluginsModule } from "@plugins/plugins.module";
+import { getInternalPluginName } from "@core/system/plugins/util";
+import { APluginsModule } from "@core/system/plugins/plugins.abstract";
 import { LazyModuleLoader } from "@nestjs/core";
 
 const moduleName = getInternalPluginName(__dirname);

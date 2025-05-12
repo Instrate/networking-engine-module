@@ -1,5 +1,5 @@
-import { APluginsModule } from "@plugins/plugins.module";
-import { AExtentionsModule } from "@extentions/extentions.module";
+import { APluginsModule } from "@core/system/plugins/plugins.abstract";
+import { AExtentionsModule } from "@core/system/plugins/extentions/extentions.abstract";
 
 export enum EInjectableState {
     Loaded = "loaded",
@@ -24,3 +24,5 @@ export interface IExtentiableModule extends IInjectableModule<APluginsModule> {
         TMetaModule<IInjectableModule<AExtentionsModule>>
     >;
 }
+
+export interface IPluginService {}

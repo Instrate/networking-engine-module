@@ -1,9 +1,13 @@
 import { Injectable } from "@nestjs/common";
-import { getPlugins } from "@plugins/util";
+import { getPlugins } from "@core/system/plugins/util";
 import logger from "@logger";
-import { APluginsModule, TPlugin } from "@plugins/plugins.module";
+import { APluginsModule, TPlugin } from "@core/system/plugins/plugins.abstract";
 import { LazyModuleLoader } from "@nestjs/core";
-import { EInjectableState } from "@plugins/plugins.interface";
+import {
+    EInjectableState,
+    IPluginService
+} from "@core/system/plugins/plugins.interface";
+import { PluginsException } from "@core/system/plugins/plugins.exeption";
 
 @Injectable()
 export class PluginsService {
@@ -86,5 +90,16 @@ export class PluginsService {
               };
 
         return list.map((val) => callback(val));
+    }
+
+    public async executePluginEvent(
+        pluginName: string,
+        pluginEvent: keyof IPluginService,
+        isThrowable: boolean
+    ) {
+        if (!this.pluginsMap.has(pluginName)) {
+            logger.error(PluginsException.NotFound(pluginName));
+            return;
+        }
     }
 }

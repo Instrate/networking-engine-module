@@ -1,3 +1,3 @@
-export enum Exceptions {
+export enum CoreExceptions {
     Validation = "ValidationException"
 }

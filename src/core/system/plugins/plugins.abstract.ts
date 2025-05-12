@@ -1,12 +1,12 @@
 import { LazyModuleLoader } from "@nestjs/core";
-import { getPluginExtentions } from "@plugins/util";
+import { getPluginExtentions } from "@core/system/plugins/util";
 import logger from "@logger";
+import { TExtention } from "@core/system/plugins/extentions/extentions.abstract";
 import {
     EInjectableState,
     IExtentiableModule,
     TMetaModule
-} from "@plugins/plugins.interface";
-import { TExtention } from "@extentions/extentions.module";
+} from "@core/system/plugins/plugins.interface";
 
 export abstract class APluginsModule {
     constructor(

@@ -8,7 +8,7 @@ import {
     IConfigPlugin,
     IConfigPluginExtention,
     PluginKeyPathDefault
-} from "../config/types/plugins";
+} from "../../../config/types/plugins";
 import path from "node:path";
 
 export function getInternalPluginName(pathToPlugin: string) {
@@ -17,9 +17,10 @@ export function getInternalPluginName(pathToPlugin: string) {
     return res;
 }
 
-const rootDefinitions = path.join(__dirname, "../");
+const rootDefinitions = path.join(__dirname, "../../..");
 const defaultExtentionsPath = path.join(rootDefinitions, "extentions");
 const defaultPluginsPath = path.join(rootDefinitions, "plugins");
+console.log(rootDefinitions);
 
 /**
  * @arg {string} name internally use with getInternalPluginName(__dirname)

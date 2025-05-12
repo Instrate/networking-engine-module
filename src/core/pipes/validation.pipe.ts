@@ -7,7 +7,7 @@ import {
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { APP_PIPE } from "@nestjs/core";
-import { Exceptions } from "@core/constants/exceptions";
+import { CoreExceptions } from "@core/constants/exceptions";
 import logger from "@logger";
 
 @Injectable()
@@ -26,7 +26,7 @@ export class ValidationPipe implements PipeTransform {
             logger.warn(
                 `Validation failed  ${JSON.stringify(errors, null, 2)}`
             );
-            throw new BadRequestException(Exceptions.Validation);
+            throw new BadRequestException(CoreExceptions.Validation);
         }
         return object;
     }
