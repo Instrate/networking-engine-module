@@ -92,14 +92,50 @@ export class PluginsService {
         return list.map((val) => callback(val));
     }
 
-    public async executePluginEvent(
-        pluginName: string,
-        pluginEvent: keyof IPluginService,
+    private static logErrorAndThrowIfNecessary(
+        message: string,
         isThrowable: boolean
     ) {
-        if (!this.pluginsMap.has(pluginName)) {
-            logger.error(PluginsException.NotFound(pluginName));
-            return;
+        logger.error(message);
+        if (isThrowable) {
+            throw new Error(message);
         }
+    }
+
+    private hasPluginValidState(pluginName: string, isThrowable: boolean) {
+        if (!this.pluginsMap.has(pluginName)) {
+            PluginsService.logErrorAndThrowIfNecessary(
+                PluginsException.NotFound(pluginName),
+                isThrowable
+            );
+            return false;
+        }
+        const plugin = this.pluginsMap.get(pluginName);
+        if (!plugin?.state || plugin?.state !== EInjectableState.Running) {
+            PluginsService.logErrorAndThrowIfNecessary(
+                PluginsException.InvalidState(pluginName, plugin?.state),
+                isThrowable
+            );
+            return false;
+        }
+        return true;
+    }
+
+    private getServiceEvent(
+        pluginName: string,
+        pluginEvent: keyof IPluginService
+    ) {
+        const test = this.pluginsMap.get(pluginName);
+    }
+
+    public async executePluginEvent<R>(
+        pluginName: string,
+        pluginEvent: keyof IPluginService,
+        isThrowable: boolean = false,
+        args?: unknown
+    ): Promise<R | null> {
+        const isValid = this.hasPluginValidState(pluginName, isThrowable);
+
+        return null;
     }
 }

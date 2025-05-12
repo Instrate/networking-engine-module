@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import { StartModule } from "./start.module";
+import { StartModule } from "@core/start.module";
 import logger from "@logger";
 import config from "@config";
 import { LoggerService, VersioningType } from "@nestjs/common";
