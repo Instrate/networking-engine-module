@@ -5,7 +5,7 @@ import {
     Injectable,
     NestInterceptor
 } from "@nestjs/common";
-import { map, Observable, tap } from "rxjs";
+import { map, Observable } from "rxjs";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { IResponse } from "../app/app.types";
@@ -30,8 +30,12 @@ function logRequest(request: FastifyRequest) {
     logger.verbose(JSON.stringify({ request: requestParsed }, null, 2));
 }
 
-function logResponse(request: FastifyRequest<any>, data: unknown) {
-    const requestParsed = `OUT ${parseRequest(request)}`;
+function logResponse(
+    request: FastifyRequest<any>,
+    status: number,
+    data: unknown
+) {
+    const requestParsed = `OUT:${status} ${parseRequest(request)}`;
     logger.debug(
         JSON.stringify({ request: requestParsed, response: data }, null, 2)
     );
@@ -64,8 +68,8 @@ export class RequestInterceptor implements NestInterceptor {
                         ] ?? HttpStatus.OK
                 };
             }),
-            tap(({ data }: IResponse) => logResponse(request, parseData(data))),
             map(({ status, data }: IResponse) => {
+                logResponse(request, status, parseData(data));
                 reply.status(status).send(data);
             })
         );

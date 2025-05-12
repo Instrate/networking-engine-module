@@ -1,4 +1,4 @@
-import { APluginsModule } from "@core/system/plugins/plugins.abstract";
+import { APluginsModule } from "@core/system/plugins/plugin.abstract.module";
 import { AExtentionsModule } from "@core/system/plugins/extentions/extentions.abstract";
 
 export enum EInjectableState {
@@ -18,11 +18,18 @@ export type TMetaModule<IInjector> =
     | IInjector
     | { state: EInjectableState.Error };
 
-export interface IExtentiableModule extends IInjectableModule<APluginsModule> {
+export type TPluginModule = Omit<APluginsModule, "loadExtentions">;
+
+export interface IExtentiableModule<T extends APluginsModule = APluginsModule>
+    extends IInjectableModule<T> {
     readonly extentions: Map<
         string,
         TMetaModule<IInjectableModule<AExtentionsModule>>
     >;
 }
 
-export interface IPluginService {}
+export interface IPluginService {
+    getVersion: (options: unknown) => string;
+}
+
+export type TPlugin = TMetaModule<IExtentiableModule>;

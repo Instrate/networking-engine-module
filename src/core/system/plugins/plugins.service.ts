@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { getPlugins } from "@core/system/plugins/util";
 import logger from "@logger";
-import { APluginsModule, TPlugin } from "@core/system/plugins/plugins.abstract";
-import { LazyModuleLoader } from "@nestjs/core";
+import { APluginsModule } from "@core/system/plugins/plugin.abstract.module";
+import { LazyModuleLoader, ModuleRef } from "@nestjs/core";
 import {
     EInjectableState,
-    IPluginService
+    IExtentiableModule,
+    IPluginService,
+    TPlugin
 } from "@core/system/plugins/plugins.interface";
 import { PluginsException } from "@core/system/plugins/plugins.exeption";
 
@@ -20,7 +22,8 @@ export class PluginsService {
                 logger.debug(`Loading [${name}] plugin`);
                 const moduleRef = await loader.load(value);
                 if (!!moduleRef) {
-                    const ref: APluginsModule = moduleRef.get(value());
+                    const ref: APluginsModule & ModuleRef =
+                        moduleRef.get(value());
                     const extsLoaded = await ref
                         .loadExtentions()
                         .then((exts) => {
@@ -62,9 +65,9 @@ export class PluginsService {
         }
     }
 
-    public getRunning(state: EInjectableState, extended: boolean) {
+    public getList(extended: boolean, state?: EInjectableState) {
         const list = Array.from(this.pluginsMap.entries()).filter(
-            ([_, plugin]) => plugin.state === state
+            ([_, plugin]) => !state || plugin.state === state
         );
 
         const callback = !extended
@@ -85,6 +88,7 @@ export class PluginsService {
 
                   return {
                       name: plName,
+                      state: plugin.state,
                       extentions
                   };
               };
@@ -102,7 +106,11 @@ export class PluginsService {
         }
     }
 
-    private hasPluginValidState(pluginName: string, isThrowable: boolean) {
+    private hasPluginValidState(
+        pluginName: string,
+        isThrowable: boolean,
+        statesAllowed: EInjectableState[] = [EInjectableState.Running]
+    ) {
         if (!this.pluginsMap.has(pluginName)) {
             PluginsService.logErrorAndThrowIfNecessary(
                 PluginsException.NotFound(pluginName),
@@ -110,32 +118,116 @@ export class PluginsService {
             );
             return false;
         }
+
         const plugin = this.pluginsMap.get(pluginName);
-        if (!plugin?.state || plugin?.state !== EInjectableState.Running) {
-            PluginsService.logErrorAndThrowIfNecessary(
-                PluginsException.InvalidState(pluginName, plugin?.state),
-                isThrowable
-            );
-            return false;
+        if (statesAllowed.includes(plugin?.state as EInjectableState)) {
+            return true;
         }
-        return true;
+
+        PluginsService.logErrorAndThrowIfNecessary(
+            PluginsException.InvalidState(pluginName, plugin?.state),
+            isThrowable
+        );
+        return false;
     }
 
-    private getServiceEvent(
+    private async getService(
+        pluginName: string
+    ): Promise<IPluginService | null> {
+        const plugin = this.pluginsMap.get(pluginName) as IExtentiableModule;
+        try {
+            const pluginRef = await APluginsModule.reload(plugin.ref);
+            const serviceRef = pluginRef.get(plugin.ref.service);
+            return serviceRef;
+        } catch (err) {
+            logger.error(
+                PluginsException.ServiceLoadFailure(pluginName, err.message)
+            );
+        }
+
+        return null;
+    }
+
+    private async getServiceEvent<R>(
         pluginName: string,
         pluginEvent: keyof IPluginService
-    ) {
-        const test = this.pluginsMap.get(pluginName);
+    ): Promise<((_: unknown) => R) | null> {
+        const service = await this.getService(pluginName);
+        if (!service) {
+            return null;
+        }
+        if (pluginEvent in service) {
+            return service[pluginEvent] as (_: unknown) => R;
+        }
+        return null;
     }
 
     public async executePluginEvent<R>(
         pluginName: string,
-        pluginEvent: keyof IPluginService,
         isThrowable: boolean = false,
+        pluginEvent: keyof IPluginService | null = null,
         args?: unknown
     ): Promise<R | null> {
         const isValid = this.hasPluginValidState(pluginName, isThrowable);
 
-        return null;
+        if (!isValid) {
+            return null;
+        }
+
+        const eventName = pluginEvent ?? "getVersion";
+
+        const eventCallback = await this.getServiceEvent<R>(
+            pluginName,
+            eventName
+        );
+        if (!eventCallback) {
+            return null;
+        }
+        const data = eventCallback(args);
+
+        return data;
+    }
+
+    public async changePluginState(
+        pluginName: string,
+        isThrowable: boolean = false,
+        newState: EInjectableState
+    ): Promise<boolean> {
+        const isValid = this.hasPluginValidState(pluginName, isThrowable, [
+            EInjectableState.Running,
+            EInjectableState.Disabled
+        ]);
+
+        if (!isValid) {
+            return false;
+        }
+
+        const plugin = this.pluginsMap.get(pluginName) as IExtentiableModule;
+
+        if (plugin.state === newState) {
+            return false;
+        }
+
+        switch (newState) {
+            case EInjectableState.Disabled:
+                {
+                    plugin.state = newState;
+                    plugin.extentions.clear();
+                    this.pluginsMap.set(pluginName, plugin);
+                }
+                break;
+            case EInjectableState.Running: {
+                const extentions = await plugin.ref.loadExtentions();
+                this.pluginsMap.set(pluginName, {
+                    ...plugin,
+                    state: newState,
+                    extentions: extentions
+                });
+            }
+        }
+
+        logger.warn(`Plugin [${pluginName}] changed state to [${newState}]`);
+
+        return true;
     }
 }

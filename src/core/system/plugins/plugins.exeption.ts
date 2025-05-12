@@ -3,4 +3,7 @@ export class PluginsException {
 
     static readonly InvalidState = (name: string, state?: string) =>
         `Plugin [${name}] has invalid state [${state}]`;
+
+    static readonly ServiceLoadFailure = (name: string, reason?: string) =>
+        `Plugin [${name}] service Load failure: ${reason}`;
 }

@@ -1,13 +1,49 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Patch, Query } from "@nestjs/common";
 import { PluginsService } from "./plugins.service";
-import { SystemPluginsRunningDtoQuery } from "./dto/running.dto";
+import {
+    SystemPluginsGetVersionDtoQuery,
+    SystemPluginsGetListDtoQuery,
+    SystemPluginsPatchStateDtoQuery
+} from "./dto/running.dto";
 
 @Controller("system/plugin")
 export class PluginsController {
     constructor(private readonly pluginsService: PluginsService) {}
 
     @Get("list")
-    async getRunningList(@Query() query: SystemPluginsRunningDtoQuery) {
-        return this.pluginsService.getRunning(query.state, query.extended);
+    async getList(@Query() query: SystemPluginsGetListDtoQuery) {
+        return this.pluginsService.getList(query.extended, query?.state);
+    }
+
+    @Get("version")
+    async getVersion(@Query() query: SystemPluginsGetVersionDtoQuery) {
+        const result = await this.pluginsService.executePluginEvent<string>(
+            query.pluginName,
+            true,
+            null,
+            "version"
+        );
+        return {
+            version: result
+        };
+    }
+
+    @Patch("state")
+    async updateState(@Query() query: SystemPluginsPatchStateDtoQuery) {
+        const hasChanged = await this.pluginsService.changePluginState(
+            query.pluginName,
+            true,
+            query.newState
+        );
+
+        if (!hasChanged) {
+            return {
+                status: HttpStatus.NOT_MODIFIED,
+                data: { hasChanged }
+            };
+        }
+        return {
+            hasChanged
+        };
     }
 }

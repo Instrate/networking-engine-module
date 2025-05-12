@@ -1,18 +1,34 @@
-import { LazyModuleLoader } from "@nestjs/core";
+import { LazyModuleLoader, ModuleRef } from "@nestjs/core";
 import { getPluginExtentions } from "@core/system/plugins/util";
 import logger from "@logger";
 import { TExtention } from "@core/system/plugins/extentions/extentions.abstract";
 import {
     EInjectableState,
-    IExtentiableModule,
-    TMetaModule
+    IPluginService
 } from "@core/system/plugins/plugins.interface";
+import { ClassConstructor } from "class-transformer";
 
-export abstract class APluginsModule {
-    constructor(
+export abstract class APluginsModule<
+    TService extends IPluginService = IPluginService
+> {
+    public readonly service: ClassConstructor<TService>;
+
+    protected constructor(
         protected readonly lazyModuleLoader: LazyModuleLoader,
-        private readonly moduleName: string
-    ) {}
+        private readonly moduleName: string,
+        service: ClassConstructor<TService>
+    ) {
+        this.service = service;
+    }
+
+    // TODO: catch
+    public static async reload<T extends APluginsModule = APluginsModule>(
+        module_: T
+    ): Promise<ModuleRef> {
+        return module_.lazyModuleLoader.load(
+            () => (module_ as any).constructor
+        );
+    }
 
     public async loadExtentions(): Promise<Map<string, TExtention>> {
         const extentions = getPluginExtentions(this.moduleName);
@@ -67,5 +83,3 @@ export abstract class APluginsModule {
         return result;
     }
 }
-
-export type TPlugin = TMetaModule<IExtentiableModule>;

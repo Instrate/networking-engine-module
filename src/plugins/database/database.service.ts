@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { IPluginService } from "@core/system/plugins/plugins.interface";
+import { APluginService } from "@core/system/plugins/plugin.abstract.service";
 
 @Injectable()
-export class DatabaseService implements IPluginService {}
+export class DatabaseService extends APluginService {}
