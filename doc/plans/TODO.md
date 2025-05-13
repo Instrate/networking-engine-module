@@ -1,6 +1,4 @@
 
-
-
 #### To version 0.1.0
 
 - Main goals:
@@ -9,4 +7,5 @@
   - [ ] plugin-based system~~
 
 - Misc goals and technical stuff:
-  - [ ] config -> core/config
+  - [ ] move src/config -> src/core/config
+  - [ ] redefine `clusterize` method holder as a plugin
