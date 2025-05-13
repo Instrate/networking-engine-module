@@ -166,7 +166,10 @@ export class PluginsService {
         return null;
     }
 
-    public async executePluginEvent<C extends keyof IPluginBehavior, R>(
+    public async executePluginEvent<
+        C extends keyof IPluginBehavior,
+        R extends ReturnType<IPluginBehavior[C]>
+    >(
         pluginName: string,
         isThrowable: boolean = false,
         pluginEvent: Nullable<C> = null,
@@ -184,9 +187,9 @@ export class PluginsService {
         if (!eventCallback) {
             return null;
         }
-        const data = eventCallback(args as any);
+        const result = eventCallback(args as any) as R;
 
-        return data;
+        return result;
     }
 
     public async changePluginState(
