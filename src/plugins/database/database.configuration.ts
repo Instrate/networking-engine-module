@@ -69,7 +69,7 @@ export class DatabasePluginExtentionSettingsDestroy
 export class DatabasePluginExtentionSettings implements IPluginSettings {
     @ValidateNested()
     @Type(() => DatabasePluginExtentionSettingsInit)
-    readonly initConfig = DatabasePluginExtentionSettingsInit;
+    readonly initConfig: DatabasePluginExtentionSettingsInit;
 
     @ValidateNested()
     @Type(() => DatabasePluginExtentionSettingsInvoke)
