@@ -20,7 +20,7 @@ export class PluginsController {
     @Throttle({})
     @Get("version")
     async getVersion(@Query() query: SystemPluginsGetVersionDtoQuery) {
-        const result = await this.pluginsService.executePluginEvent<string>(
+        const result = await this.pluginsService.executePluginEvent(
             query.pluginName,
             true,
             null,

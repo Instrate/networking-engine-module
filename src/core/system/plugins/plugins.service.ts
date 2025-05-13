@@ -139,6 +139,11 @@ export class PluginsService {
         const plugin = this.pluginsMap.get(pluginName) as IExtentiableModule;
         try {
             const pluginRef = await APluginEntrypointModule.reload(plugin.ref);
+            if (!pluginRef) {
+                throw new Error(
+                    PluginsException.MissingModuleReference(pluginName)
+                );
+            }
             const serviceRef = pluginRef.get(
                 plugin.ref.service as unknown as Type<APluginService<any>>
             );
@@ -173,7 +178,7 @@ export class PluginsService {
         pluginName: string,
         isThrowable: boolean = false,
         pluginEvent: Nullable<C> = null,
-        args?: IPluginBehavior[C]
+        args?: IPluginBehavior[C] | unknown
     ): Promise<Nullable<R>> {
         const isValid = this.hasPluginValidState(pluginName, isThrowable);
 
@@ -182,12 +187,16 @@ export class PluginsService {
         }
 
         const eventName = pluginEvent ?? "getVersion";
+        const eventCallback = (await this.getServiceEvent(
+            pluginName,
+            eventName
+        )) as IPluginBehavior[C];
 
-        const eventCallback = await this.getServiceEvent(pluginName, eventName);
         if (!eventCallback) {
             return null;
         }
-        const result = eventCallback(args as any) as R;
+
+        const result = (eventCallback as Function)(args) as R;
 
         return result;
     }

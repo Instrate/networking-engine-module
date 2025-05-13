@@ -5,32 +5,34 @@ import { TExtention } from "@core/system/plugins/extentions/extentions.abstract"
 import {
     EInjectableState,
     IPluginBehavior,
-    IPluginService
+    IPluginSettings
 } from "@core/system/plugins/plugins.interface";
 import { PluginsException } from "@core/system/plugins/plugins.exeption";
+import { Type } from "@nestjs/common";
+import { APluginService } from "@core/system/plugins/plugin.abstract.service";
 
 type TLoadExtentionsEntry = [string, TExtention];
 
 export abstract class APluginEntrypointModule<
-    TService extends IPluginService = IPluginService
+    TConfig extends IPluginSettings = IPluginSettings,
+    TService extends APluginService<TConfig> = APluginService<TConfig>
 > {
     protected abstract readonly moduleName: string;
 
-    public readonly service: TService;
+    public readonly service: Type<TService>;
 
     protected constructor(
         protected readonly lazyModuleLoader: LazyModuleLoader,
-        service: TService
+        service: Type<TService>
     ) {
         this.service = service;
     }
 
-    // TODO: catch
     public static async reload<
         T extends APluginEntrypointModule = APluginEntrypointModule
-    >(module_: T): Promise<ModuleRef> {
-        return module_.lazyModuleLoader.load(
-            () => (module_ as any).constructor
+    >(moduleRef: T): Promise<ModuleRef> {
+        return moduleRef.lazyModuleLoader.load(
+            () => moduleRef.constructor as Type<T>
         );
     }
 
@@ -80,7 +82,11 @@ export abstract class APluginEntrypointModule<
         return result;
     }
 
-    public executeEvent(event: keyof IPluginBehavior, args: any) {
-        this.service[event](args);
+    public async executeEvent(
+        event: keyof IPluginBehavior,
+        service: TService,
+        args: any
+    ) {
+        const result = service[event](args);
     }
 }
