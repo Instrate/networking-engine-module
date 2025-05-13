@@ -1,6 +1,7 @@
 import {
     IsArray,
     IsBoolean,
+    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsString,
@@ -9,8 +10,14 @@ import {
     ValidateNested
 } from "class-validator";
 import { PortMax, PortMin } from "@core/constants/global";
-import { IPluginSettings } from "@core/system/plugins/plugins.interface";
+import {
+    EInjectableDestroyReason,
+    IPluginSettingDestroy,
+    IPluginSettings
+} from "@core/system/plugins/plugins.interface";
 import { Type } from "class-transformer";
+
+export class DatabasePluginExtentionSettingsInit {}
 
 export class DatabasePluginExtentionSettingsInvoke {
     @IsNotEmpty()
@@ -51,12 +58,24 @@ export class DatabasePluginExtentionSettingsInvoke {
     readonly synchronize: boolean = true;
 }
 
+export class DatabasePluginExtentionSettingsDestroy
+    implements IPluginSettingDestroy
+{
+    @IsNotEmpty()
+    @IsEnum(EInjectableDestroyReason)
+    readonly reason: EInjectableDestroyReason;
+}
+
 export class DatabasePluginExtentionSettings implements IPluginSettings {
-    initConfig: null;
+    @ValidateNested()
+    @Type(() => DatabasePluginExtentionSettingsInit)
+    readonly initConfig = DatabasePluginExtentionSettingsInit;
 
     @ValidateNested()
     @Type(() => DatabasePluginExtentionSettingsInvoke)
-    invokeConfig: DatabasePluginExtentionSettingsInvoke;
+    readonly invokeConfig: DatabasePluginExtentionSettingsInvoke;
 
-    destroyConfig: null;
+    @ValidateNested()
+    @Type(() => DatabasePluginExtentionSettingsDestroy)
+    readonly destroyConfig: DatabasePluginExtentionSettingsDestroy;
 }

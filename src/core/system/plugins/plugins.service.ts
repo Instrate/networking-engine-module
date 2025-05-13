@@ -1,15 +1,18 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Type } from "@nestjs/common";
 import { getPlugins } from "@core/system/plugins/util";
 import logger from "@logger";
-import { APluginsModule } from "@core/system/plugins/plugin.abstract.module";
+import { APluginEntrypointModule } from "@core/system/plugins/plugin.abstract.module";
 import { LazyModuleLoader, ModuleRef } from "@nestjs/core";
 import {
     EInjectableState,
     IExtentiableModule,
+    IPluginBehavior,
     IPluginService,
     TPlugin
 } from "@core/system/plugins/plugins.interface";
 import { PluginsException } from "@core/system/plugins/plugins.exeption";
+import { Nullable } from "@core/types/global";
+import { APluginService } from "@core/system/plugins/plugin.abstract.service";
 
 @Injectable()
 export class PluginsService {
@@ -17,48 +20,47 @@ export class PluginsService {
 
     public async loadPlugins(loader: LazyModuleLoader) {
         const plugins = getPlugins();
-        for (const { name, value } of plugins) {
+        for (const { moduleName, moduleReferenceCallback } of plugins) {
             await (async () => {
-                logger.debug(`Loading [${name}] plugin`);
-                const moduleRef = await loader.load(value);
-                if (!!moduleRef) {
-                    const ref: APluginsModule & ModuleRef =
-                        moduleRef.get(value());
-                    const extsLoaded = await ref
-                        .loadExtentions()
-                        .then((exts) => {
-                            logger.debug(`Plugin ${name} loaded`);
-                            this.pluginsMap.set(name, {
-                                state: EInjectableState.Running,
-                                ref,
-                                extentions: exts
-                            });
-                            return true;
-                        })
-                        .catch((err) => {
-                            logger.error(
-                                `Failed to load extentions for plugin ${name}: ${err.message}`
-                            );
-                            return false;
-                        });
-
-                    if (extsLoaded) {
-                        return;
-                    }
-                    this.pluginsMap.set(name, {
-                        state: EInjectableState.Loaded,
-                        ref,
-                        extentions: new Map()
-                    });
-                } else {
-                    logger.error(`Plugin ${name} not loaded: unknown error`);
-                    this.pluginsMap.set(name, {
-                        state: EInjectableState.Error
-                    });
+                logger.debug(`Loading [${moduleName}] plugin`);
+                const moduleRef = await loader.load(moduleReferenceCallback);
+                if (!moduleRef) {
+                    throw new Error(
+                        PluginsException.MissingModuleReference(moduleName)
+                    );
                 }
-            })().catch((err) => {
-                logger.error(`Plugin ${name} not loaded: ${err.message}`);
-                this.pluginsMap.set(name, {
+                const ref: APluginEntrypointModule & ModuleRef = moduleRef.get(
+                    moduleReferenceCallback()
+                );
+                const extsLoaded = await ref
+                    .loadExtentions()
+                    .then((exts) => {
+                        logger.debug(`Plugin ${moduleName} loaded`);
+                        this.pluginsMap.set(moduleName, {
+                            state: EInjectableState.Running,
+                            ref,
+                            extentions: exts
+                        });
+                        return true;
+                    })
+                    .catch((err: Error) => {
+                        logger.error(
+                            `Failed to load extentions for plugin ${moduleName}: ${err.message}`
+                        );
+                        return false;
+                    });
+
+                if (extsLoaded) {
+                    return;
+                }
+                this.pluginsMap.set(moduleName, {
+                    state: EInjectableState.Loaded,
+                    ref,
+                    extentions: new Map()
+                });
+            })().catch((err: Error) => {
+                logger.error(`Plugin ${moduleName} not loaded: ${err.message}`);
+                this.pluginsMap.set(moduleName, {
                     state: EInjectableState.Error
                 });
             });
@@ -136,8 +138,10 @@ export class PluginsService {
     ): Promise<IPluginService | null> {
         const plugin = this.pluginsMap.get(pluginName) as IExtentiableModule;
         try {
-            const pluginRef = await APluginsModule.reload(plugin.ref);
-            const serviceRef = pluginRef.get(plugin.ref.service);
+            const pluginRef = await APluginEntrypointModule.reload(plugin.ref);
+            const serviceRef = pluginRef.get(
+                plugin.ref.service as unknown as Type<APluginService<any>>
+            );
             return serviceRef;
         } catch (err) {
             logger.error(
@@ -148,26 +152,26 @@ export class PluginsService {
         return null;
     }
 
-    private async getServiceEvent<R>(
+    private async getServiceEvent<V extends keyof IPluginBehavior, R>(
         pluginName: string,
-        pluginEvent: keyof IPluginService
-    ): Promise<((_: unknown) => R) | null> {
+        pluginEvent: V
+    ): Promise<Nullable<IPluginBehavior[V] & Function>> {
         const service = await this.getService(pluginName);
         if (!service) {
             return null;
         }
         if (pluginEvent in service) {
-            return service[pluginEvent] as (_: unknown) => R;
+            return service[pluginEvent];
         }
         return null;
     }
 
-    public async executePluginEvent<R>(
+    public async executePluginEvent<C extends keyof IPluginBehavior, R>(
         pluginName: string,
         isThrowable: boolean = false,
-        pluginEvent: keyof IPluginService | null = null,
-        args?: unknown
-    ): Promise<R | null> {
+        pluginEvent: Nullable<C> = null,
+        args?: IPluginBehavior[C]
+    ): Promise<Nullable<R>> {
         const isValid = this.hasPluginValidState(pluginName, isThrowable);
 
         if (!isValid) {
@@ -176,14 +180,11 @@ export class PluginsService {
 
         const eventName = pluginEvent ?? "getVersion";
 
-        const eventCallback = await this.getServiceEvent<R>(
-            pluginName,
-            eventName
-        );
+        const eventCallback = await this.getServiceEvent(pluginName, eventName);
         if (!eventCallback) {
             return null;
         }
-        const data = eventCallback(args);
+        const data = eventCallback(args as any);
 
         return data;
     }
@@ -216,14 +217,16 @@ export class PluginsService {
                     this.pluginsMap.set(pluginName, plugin);
                 }
                 break;
-            case EInjectableState.Running: {
-                const extentions = await plugin.ref.loadExtentions();
-                this.pluginsMap.set(pluginName, {
-                    ...plugin,
-                    state: newState,
-                    extentions: extentions
-                });
-            }
+            case EInjectableState.Running:
+                {
+                    const extentions = await plugin.ref.loadExtentions();
+                    this.pluginsMap.set(pluginName, {
+                        ...plugin,
+                        state: newState,
+                        extentions: extentions
+                    });
+                }
+                break;
         }
 
         logger.warn(`Plugin [${pluginName}] changed state to [${newState}]`);

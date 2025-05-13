@@ -89,8 +89,8 @@ export function getPlugins() {
                         `${plugin.name}.module.js`
                     );
                     return {
-                        name: plugin.name,
-                        value: () => require(source)?.default
+                        moduleName: plugin.name,
+                        moduleReferenceCallback: () => require(source)?.default
                     };
                 }
                 logger.error(`UndefinedStrategy: ${plugin.type}`);

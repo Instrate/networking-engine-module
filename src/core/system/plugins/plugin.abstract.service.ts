@@ -6,10 +6,10 @@ import { ClassConstructor } from "class-transformer";
 import { validateSchemaThrowable } from "@core/system/validator";
 
 export abstract class APluginService<
-    TPluginConfiguration extends IPluginSettings = IPluginSettings
+    TPluginConfiguration extends IPluginSettings
 > implements IPluginService<TPluginConfiguration>
 {
-    abstract settings: TPluginConfiguration;
+    abstract readonly settings: TPluginConfiguration;
 
     private validateProvidedArguments<TKey extends keyof TPluginConfiguration>(
         options: TKey | unknown,
@@ -18,38 +18,35 @@ export abstract class APluginService<
         if (!schema) {
             return;
         }
+
         validateSchemaThrowable(options, schema as ClassConstructor<TKey>);
     }
 
-    getVersion() {
-        return "unspecified";
-    }
-
-    init(options: TPluginConfiguration["initConfig"]): Promise<void> | void {
+    init(options: TPluginConfiguration["initConfig"]) {
         this.validateProvidedArguments(
             options,
             this.settings.initConfig?.constructor
         );
-        return undefined;
+        return;
     }
 
-    invoke(
-        options: TPluginConfiguration["invokeConfig"]
-    ): Promise<void> | void {
+    invoke(options: TPluginConfiguration["invokeConfig"]) {
         this.validateProvidedArguments(
             options,
             this.settings.invokeConfig?.constructor
         );
-        return undefined;
+        return;
     }
 
-    destroy(
-        options: TPluginConfiguration["destroyConfig"]
-    ): Promise<void> | void {
+    destroy(options: TPluginConfiguration["destroyConfig"]) {
         this.validateProvidedArguments(
             options,
             this.settings.destroyConfig?.constructor
         );
-        return undefined;
+        return;
+    }
+
+    getVersion() {
+        return "unspecified";
     }
 }

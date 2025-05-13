@@ -6,21 +6,17 @@ import { DatabasePluginExtentionSettings } from "@plugins/database/database.conf
 export class DatabaseService extends APluginService<DatabasePluginExtentionSettings> {
     public readonly settings: DatabasePluginExtentionSettings;
 
-    init(options: any): Promise<void> | void {
+    init(options: DatabasePluginExtentionSettings["initConfig"]) {
+        console.log(options);
+        super.init(options);
+    }
+
+    invoke(options: DatabasePluginExtentionSettings["invokeConfig"]) {
         console.log(options);
         super.invoke(options);
     }
 
-    invoke(
-        options: DatabasePluginExtentionSettings["invokeConfig"]
-    ): Promise<void> | void {
-        console.log(options);
-        super.invoke(options);
-    }
-
-    destroy(
-        options: DatabasePluginExtentionSettings["destroyConfig"]
-    ): Promise<void> | void {
+    destroy(options: DatabasePluginExtentionSettings["destroyConfig"]) {
         console.log(options);
         super.destroy(options);
     }
