@@ -11,11 +11,12 @@ import { ClassConstructor } from "class-transformer";
 export abstract class APluginsModule<
     TService extends IPluginService = IPluginService
 > {
+    protected abstract readonly moduleName: string;
+
     public readonly service: ClassConstructor<TService>;
 
     protected constructor(
         protected readonly lazyModuleLoader: LazyModuleLoader,
-        private readonly moduleName: string,
         service: ClassConstructor<TService>
     ) {
         this.service = service;
@@ -46,7 +47,7 @@ export abstract class APluginsModule<
                         return [
                             name,
                             {
-                                state: EInjectableState.Loaded,
+                                state: EInjectableState.Running,
                                 ref
                             }
                         ] as [string, TExtention];
@@ -58,7 +59,7 @@ export abstract class APluginsModule<
                     return [
                         name,
                         {
-                            state: EInjectableState.Loaded
+                            state: EInjectableState.Error
                         }
                     ] as [string, TExtention];
                 })().catch((err) => {
@@ -68,7 +69,7 @@ export abstract class APluginsModule<
                     return [
                         name,
                         {
-                            state: EInjectableState.Loaded
+                            state: EInjectableState.Error
                         }
                     ] as [string, TExtention];
                 });

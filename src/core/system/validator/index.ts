@@ -14,7 +14,7 @@ export function validateSchemaThrowable(
     schema: ClassConstructor<unknown>
 ): data is typeof schema {
     const errors = validateSchema(data, schema);
-    if (!errors.length) {
+    if (!errors?.length) {
         return true;
     }
     const pure = errors.map(({ value, property, constraints, children }) => ({

@@ -1,6 +1,7 @@
 import { IsBoolean, IsNumber, Max, Min, ValidateNested } from "class-validator";
 import * as os from "node:os";
 import { Type } from "class-transformer";
+import { PortMax, PortMin } from "@core/constants/global";
 
 export class IConfigApplicationCluster {
     @IsBoolean()
@@ -17,8 +18,8 @@ export class IConfigApplicationCluster {
 
 export class IConfigApplication {
     @IsNumber()
-    @Min(1024)
-    @Max(49151)
+    @Min(PortMin)
+    @Max(PortMax)
     readonly port: number;
 
     @ValidateNested()

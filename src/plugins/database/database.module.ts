@@ -4,14 +4,14 @@ import { getInternalPluginName } from "@core/system/plugins/util";
 import { APluginsModule } from "@core/system/plugins/plugin.abstract.module";
 import { LazyModuleLoader } from "@nestjs/core";
 
-const moduleName = getInternalPluginName(__dirname);
-
 @Module({
     imports: [],
     providers: [DatabaseService]
 })
 export default class DatabaseModule extends APluginsModule {
+    protected readonly moduleName = getInternalPluginName(__dirname);
+
     constructor(protected readonly lazyModuleLoader: LazyModuleLoader) {
-        super(lazyModuleLoader, moduleName, DatabaseService);
+        super(lazyModuleLoader, DatabaseService);
     }
 }

@@ -6,7 +6,16 @@
             "extentions": [
                 {
                     "name": "sqlite",
-                    "type": "module"
+                    "type": "module",
+                    "options": {
+                        "init": {
+                            "host": "localhost",
+                            "port": 3306,
+                            "username": "test",
+                            "password": "test",
+                            "database": "test"
+                        }
+                    }
                 }
             ]
         }

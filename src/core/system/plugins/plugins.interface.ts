@@ -28,7 +28,30 @@ export interface IExtentiableModule<T extends APluginsModule = APluginsModule>
     >;
 }
 
-export interface IPluginService {
+export interface IPluginSettings<
+    TInit = Object,
+    TTnvoke = Object,
+    TDestroy = Object
+> {
+    initConfig: TInit | null;
+
+    invokeConfig: TTnvoke | null;
+
+    destroyConfig: TDestroy | null;
+}
+
+export interface IPluginBehavior<S extends IPluginSettings = IPluginSettings> {
+    init: (options: S["initConfig"]) => Promise<void> | void;
+
+    invoke: (options: S["invokeConfig"]) => Promise<void> | void;
+
+    destroy: (options: S["destroyConfig"]) => Promise<void> | void;
+}
+
+export interface IPluginService<S extends IPluginSettings = IPluginSettings>
+    extends IPluginBehavior<S> {
+    settings: S;
+
     getVersion: (options: unknown) => string;
 }
 

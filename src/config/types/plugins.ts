@@ -16,6 +16,11 @@ export enum EExtentionsType {
     Module = "module"
 }
 
+export class IConfigPluginExtentionOptions {
+    @IsOptional()
+    init?: unknown;
+}
+
 export class IConfigPluginExtention {
     @IsNotEmpty()
     @IsString()
@@ -28,6 +33,11 @@ export class IConfigPluginExtention {
 
     @IsEnum(EExtentionsType)
     readonly type: EExtentionsType;
+
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => IConfigPluginExtentionOptions)
+    readonly options?: IConfigPluginExtentionOptions;
 }
 
 export class IConfigPlugin {

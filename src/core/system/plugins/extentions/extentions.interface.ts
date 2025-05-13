@@ -1,5 +1,5 @@
 export interface IExtentionsModule {}
 
-export interface IExtentionService<T = any> {
+export interface IExtentionService<T extends object = object> {
     init: (options: T) => void;
 }
