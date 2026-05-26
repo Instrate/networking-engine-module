@@ -1,6 +1,8 @@
-const kb = 1024;
-const mb = kb * 1024;
-const gb = mb * 1024;
+const modifier = 1024 as const;
+
+const kb = modifier;
+const mb = kb * modifier;
+const gb = mb * modifier;
 
 export function truncWithTail(val: number, digitsAmountToKeep: number = 0) {
     const num = Math.pow(10, digitsAmountToKeep);
