@@ -4,6 +4,7 @@ import { WinstonModule } from "nest-winston";
 import { LoggerService } from "@nestjs/common";
 import config from "@config";
 import { TransformableInfo } from "logform";
+import { EAnsiColourSequence } from "@core/logger/util";
 
 const pid = `PID #${process.pid.toString().padEnd(5)}`;
 
@@ -14,13 +15,10 @@ function prepareMs(ms: string) {
 }
 
 function prepareLevel(level: string) {
-    let res =
-        level.slice(0, 5) +
-        level.slice(5, -4).replace("\x1B[39m", "").toUpperCase() +
-        "\x1B[39m" +
-        "]";
-    let pad = 16;
-    res = `[${res.padEnd(pad, " ")}`;
+    const pad = 16;
+    const levelPre = level.slice(0, 5);
+    const levelName = level.slice(5, -4);
+    const res = `[${EAnsiColourSequence.Reset}${levelPre}${levelName.toUpperCase().padEnd(pad, " ")}${EAnsiColourSequence.Reset}]`;
     return res;
 }
 
