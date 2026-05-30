@@ -92,7 +92,7 @@ const logger = WinstonModule.createLogger({
 export class GlobalLogger {
     static singleton: GlobalLogger;
 
-    public readonly instance!: Required<LoggerService>;
+    public readonly instance!: Required<LoggerService> & LoggerService;
 
     constructor() {
         if (!!GlobalLogger.singleton) {

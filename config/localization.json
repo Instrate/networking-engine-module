@@ -1,0 +1,22 @@
+{
+    "messages": {
+        "core": {
+            "AppStarted": "Application started on port [$context]",
+            "AppShutdown": "Application shutdown [$context]"
+        }
+    },
+    "exceptions": {
+        "core": {
+            "ExceptionSample": "Exception [$name] occurred without meta",
+            "InvalidPath": "Provided path is invalid: $name"
+        },
+        "plugins": {
+            "NotFound": "Plugin [$name] Not Found",
+            "InvalidState": "Plugin [$name] has invalid state [$cause]",
+            "ServiceLoadFailure": "Plugin [$name] service load failure: $cause",
+            "MissingModuleReference": "Missing reference to module: [$name]",
+            "EventException": "Event [$name] has failed to be executed: [$cause]",
+            "MissingDependency": "Plugin [$name] failed to retrieve its dependency: [$cause]"
+        }
+    }
+}

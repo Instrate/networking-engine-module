@@ -1,23 +1,24 @@
-import { Controller, Get, Req, Res } from "@nestjs/common";
+import { Get, Req, Res } from "@nestjs/common";
+import {
+    ApiV1Meta,
+    ApiV1Service
+} from "@core/app/controllers/api/api.v1.service";
+import { AControllerVersioned } from "@core/app/abstracts/controller.abstract";
+import { MetaVersionedController } from "@core/app/decorators/controller.decorator";
 import { FastifyReply, FastifyRequest } from "fastify";
-import os from "node:os";
-import { bytesToGb } from "@core/utils/conversion";
+import { IApiV1ControllerInterface } from "@core/app/controllers/api/api.v1.interface";
 
-@Controller({
-    version: "1",
-    path: "api"
-})
-export class ApiV1Controller {
+@MetaVersionedController(ApiV1Meta)
+export class ApiV1Controller
+    extends AControllerVersioned<typeof ApiV1Meta, typeof ApiV1Service>
+    implements IApiV1ControllerInterface
+{
+    constructor(protected readonly service: ApiV1Service) {
+        super(service);
+    }
+
     @Get("/test/ping")
     testPing(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
-        const response = {
-            server_time: new Date().getTime(),
-            memory: {
-                total: bytesToGb(os.totalmem()),
-                free: bytesToGb(os.freemem())
-            }
-        };
-
-        return response;
+        return this.service.testPing();
     }
 }

@@ -1,23 +1,12 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import ignore from "./.style/ignore.default.mjs";
-import { JsConfig, JsonConfig, TsConfig } from "style-eslint/lint.mjs";
-import path from "node:path";
+import { lint } from "instrate-style-preferences";
 
-const stylesFolder = "./.style";
+const ignoreList = [...lint.IgnoreListDefault, "logs/**/*", "doc/**/*.js"];
 
-const ignoreMainList = ignore.retrieveIgnoreList();
+console.log(ignoreList);
 
-const ignoreStylesList = ignore
-    .retrieveIgnoreList(path.join(stylesFolder, ".gitignore"))
-    .map((rule) => path.join(stylesFolder, rule));
-
-const ignoreList = ignoreMainList
-    .concat(ignoreStylesList)
-    .concat([".obsidian/", stylesFolder]);
-
-export default defineConfig([
-    globalIgnores(ignoreList),
-    JsConfig,
-    TsConfig,
-    JsonConfig
+export default lint.n18.defineConfig([
+    lint.n18.globalIgnores(ignoreList),
+    lint.n18.JsConfig,
+    lint.n18.TsConfig,
+    lint.n18.JsonConfig
 ]);

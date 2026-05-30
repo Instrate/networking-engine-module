@@ -5,24 +5,27 @@ import { PortMax, PortMin } from "@core/constants/global";
 
 export class IConfigApplicationCluster {
     @IsBoolean()
-    readonly enable: boolean;
+    readonly enable!: boolean;
 
     @IsNumber()
     @Min(0)
     @Max(os.cpus().length)
-    readonly amount: number;
+    readonly amount!: number;
 
     @IsBoolean()
-    readonly restart: boolean;
+    readonly restart!: boolean;
 }
 
 export class IConfigApplication {
     @IsNumber()
     @Min(PortMin)
     @Max(PortMax)
-    readonly port: number;
+    readonly port!: number;
+
+    @IsBoolean()
+    readonly isDynamicPortAllowed!: boolean;
 
     @ValidateNested()
     @Type(() => IConfigApplicationCluster)
-    readonly cluster: IConfigApplicationCluster;
+    readonly cluster!: IConfigApplicationCluster;
 }

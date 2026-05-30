@@ -2,27 +2,31 @@ import {
     IPluginBehaviorArguments,
     IPluginBehaviorResult,
     IPluginService,
-    IPluginSettings
+    IPluginSettings,
+    PluginVersion
 } from "@core/system/plugins/plugins.interface";
 import { ClassConstructor } from "class-transformer";
 import { validateSchemaThrowable } from "@core/system/validator";
-import { TExtentionService } from "@core/system/plugins/extentions/extentions.interface";
 import { Occasional } from "@core/types/global";
 import { ModuleRef } from "@nestjs/core";
 
-type TAPluginService<TPluginConfig extends IPluginSettings> = IPluginService<
-    TPluginConfig,
-    false
->;
-
-export abstract class PluginKitService<
+export abstract class KitPluginService<
     TPluginConfig extends IPluginSettings = IPluginSettings
-> implements IPluginService<TPluginConfig, false>
-{
+> implements IPluginService<TPluginConfig, false> {
     abstract readonly settings: TPluginConfig;
 
-    // TODO: resolve missing value
+    protected version: PluginVersion = "0.0.0";
 
+    public get Version() {
+        return this.version;
+    }
+
+    protected constructor(
+        protected readonly moduleRef: ModuleRef,
+        protected readonly dependenciesRefTokens: string[] = []
+    ) {}
+
+    // TODO: resolve missing value
     protected async getDependenciesServicesFromTokens<T extends typeof this>(
         ...tokens: string[]
     ) {
@@ -33,11 +37,6 @@ export abstract class PluginKitService<
         );
     }
 
-    protected constructor(
-        protected readonly moduleRef: ModuleRef,
-        protected readonly dependenciesRefTokens: string[] = []
-    ) {}
-
     private validateProvidedArguments<TKey extends keyof TPluginConfig>(
         options: TKey | unknown,
         schema?: ClassConstructor<TKey> | Function
@@ -47,10 +46,6 @@ export abstract class PluginKitService<
         }
 
         validateSchemaThrowable(options, schema as ClassConstructor<TKey>);
-    }
-
-    protected getExtention(extsArr: TExtentionService<TPluginConfig>[] = []) {
-        return extsArr;
     }
 
     // <
@@ -75,10 +70,8 @@ export abstract class PluginKitService<
     invoke<
         TData extends Occasional<Object> = Occasional<Object>,
         R extends unknown = void,
-        TArgs extends IPluginBehaviorArguments<
-            TPluginConfig,
-            TData
-        > = IPluginBehaviorArguments<TPluginConfig, TData>
+        TArgs extends IPluginBehaviorArguments<TPluginConfig, TData> =
+            IPluginBehaviorArguments<TPluginConfig, TData>
     >(
         options: TPluginConfig["invokeConfig"],
         args?: TArgs
@@ -93,10 +86,8 @@ export abstract class PluginKitService<
     destroy<
         TData extends Occasional<Object> = Occasional<Object>,
         R extends unknown = void,
-        TArgs extends IPluginBehaviorArguments<
-            TPluginConfig,
-            TData
-        > = IPluginBehaviorArguments<TPluginConfig, TData>
+        TArgs extends IPluginBehaviorArguments<TPluginConfig, TData> =
+            IPluginBehaviorArguments<TPluginConfig, TData>
     >(
         options: TPluginConfig["destroyConfig"],
         args?: TArgs
@@ -106,9 +97,5 @@ export abstract class PluginKitService<
             this.settings?.destroyConfig?.constructor
         );
         return;
-    }
-
-    getVersion() {
-        return "unspecified";
     }
 }

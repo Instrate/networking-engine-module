@@ -1,28 +1,24 @@
 import { LazyModuleLoader, ModuleRef } from "@nestjs/core";
 import { getPluginExtentions } from "@core/system/plugins/util";
-import logger from "@logger";
-import { TExtention } from "@core/system/plugins/extentions/extention.abstract.service";
 import {
-    IPluginBehavior,
     IPluginSettings,
-    PluginDependencyInjectionSchema
+    PluginDependencyInjectionSchema,
+    TPluginDependencies
 } from "@core/system/plugins/plugins.interface";
-import { PluginsException } from "@core/system/plugins/plugins.message";
 import { Type } from "@nestjs/common";
-import { PluginKitService } from "@kit/plugin.abstract.service";
+import { KitPluginService } from "@kit/plugins/plugin-kit.service";
 
-type TLoadExtentionsEntry = [string, TExtention];
+type TLoadExtentionsEntry = [string];
 
-// TODO: change abstract plugin naming to plugin dev kit naming
-export abstract class APluginEntrypointModule<
+export abstract class KitPluginModule<
     TConfig extends IPluginSettings = IPluginSettings,
-    TService extends PluginKitService<TConfig> = PluginKitService<TConfig>
+    TService extends KitPluginService<TConfig> = KitPluginService<TConfig>
 > {
-    protected abstract readonly name: string;
-
     protected constructor(
+        protected readonly name: string,
         protected readonly lazyModuleLoader: LazyModuleLoader,
-        public readonly service: TService
+        public readonly service: TService,
+        protected readonly dependencies: TPluginDependencies = []
     ) {}
 
     public getInjectionSchema(): ReadonlyArray<
@@ -31,9 +27,9 @@ export abstract class APluginEntrypointModule<
         return [];
     }
 
-    public static async reload<
-        T extends APluginEntrypointModule = APluginEntrypointModule
-    >(moduleRef: T): Promise<ModuleRef> {
+    public static async reload<T extends KitPluginModule = KitPluginModule>(
+        moduleRef: T
+    ): Promise<ModuleRef> {
         return moduleRef.lazyModuleLoader.load(
             () => moduleRef.constructor as Type<T>
         );
@@ -86,24 +82,24 @@ export abstract class APluginEntrypointModule<
         // return result;
     }
 
-    public async executeEvent<TKey extends keyof IPluginBehavior>(
-        event: TKey,
-        isThrowable: boolean = false,
-        args?: Parameters<TService[TKey]>
-    ) {
-        try {
-            const callback = this.service[event] as Function;
-            const result = callback.call(this.service, args);
-            return result;
-        } catch (error) {
-            const message = PluginsException.EventException(
-                event,
-                error.message
-            );
-            logger.error(message);
-            if (isThrowable) {
-                throw new Error(message);
-            }
-        }
-    }
+    // public async executeEvent<TKey extends keyof IPluginBehavior>(
+    //     event: TKey,
+    //     isThrowable: boolean = false,
+    //     args?: Parameters<TService[TKey]>
+    // ) {
+    //     try {
+    //         const callback = this.service[event] as Function;
+    //         const result = callback.call(this.service, args);
+    //         return result;
+    //     } catch (error) {
+    //         const message = PluginsException.EventException(
+    //             event,
+    //             error.message
+    //         );
+    //         logger.error(message);
+    //         if (isThrowable) {
+    //             throw new Error(message);
+    //         }
+    //     }
+    // }
 }

@@ -1,25 +1,55 @@
 import config from "@config";
-import assert from "node:assert";
+import { ok as assert } from "node:assert";
 import logger from "@logger";
 import { util } from "config";
 import {
     EExtentionsType,
-    ExtentionsKeyPathDefault,
     IConfigPlugin,
-    IConfigPluginExtention,
     PluginKeyPathDefault
-} from "../../../config/types/plugins";
+} from "../../config/types/plugins";
 import path from "node:path";
+import { replaceWinSlashToUnix } from "@core/utils/convsersions/stringFormats";
+import CoreException from "@core/handlers/exceptions/core";
 
+// TODO: move to kit
 export function getInternalPluginName(pathToPlugin: string) {
-    const res = pathToPlugin.replaceAll(/\\/g, "/").split("/").pop();
-    assert(typeof res === "string", "Path invalid");
+    const res = replaceWinSlashToUnix(pathToPlugin).split("/").pop();
+    assert(
+        typeof res === "string",
+        CoreException("InvalidPath", { name: pathToPlugin })
+    );
     return res;
 }
 
-const rootDefinitions = path.join(__dirname, "../../..");
-const defaultExtentionsPath = path.join(rootDefinitions, "extentions");
-const defaultPluginsPath = path.join(rootDefinitions, "plugins");
+export function getInternalElementName(pathToElement: string) {
+    const dir = getInternalPluginName(__dirname);
+
+    const pathSplit = pathToElement
+        .split("/")
+        .flatMap((val) => val.split("\\"));
+
+    const elementNamePathIndex = pathSplit.indexOf(dir);
+
+    assert(
+        elementNamePathIndex !== -1,
+        CoreException("InvalidPath", { name: pathToElement })
+    );
+
+    const elementName = pathSplit.at(elementNamePathIndex + 1);
+
+    assert(
+        typeof elementName === "string",
+        CoreException("InvalidPath", { name: pathToElement })
+    );
+
+    return elementName;
+}
+
+const pathAdjustment = "../../..";
+const pluginsDirName = "plugins";
+
+const rootDefinitions = path.join(__dirname, pathAdjustment);
+export const defaultPluginsPath = path.join(rootDefinitions, pluginsDirName);
 console.log(rootDefinitions);
 
 /**
@@ -32,41 +62,7 @@ export function getPluginExtentions(name: string) {
         return [];
     }
 
-    const extentions = context.extentions
-        .map(
-            (ext) =>
-                util.extendDeep(
-                    new IConfigPluginExtention(),
-                    ext
-                ) as IConfigPluginExtention
-        )
-        .map((ext) => {
-            try {
-                if (ext.type === EExtentionsType.Module) {
-                    const prePath =
-                        ext.source === ExtentionsKeyPathDefault
-                            ? defaultExtentionsPath
-                            : ext.source;
-                    const source = path.join(
-                        prePath,
-                        ext.name,
-                        `${ext.name}.module.js`
-                    );
-                    return {
-                        name: ext.name,
-                        value: () => require(source)?.default
-                    };
-                }
-                logger.error(`UndefinedStrategy: ${ext.type}`);
-            } catch (err) {
-                logger.error(
-                    `Extention ${ext.name} description not found for plugin ${context.name}: ${err.message}`
-                );
-            }
-        })
-        .filter((ext) => !!ext);
-
-    return extentions;
+    return [];
 }
 
 export function getPlugins() {
@@ -88,6 +84,7 @@ export function getPlugins() {
                         plugin.name,
                         `${plugin.name}.module.js`
                     );
+
                     return {
                         moduleName: plugin.name,
                         moduleReferenceCallback: () => require(source)?.default

@@ -1,7 +1,7 @@
 {
     "name": "networking-engine-module",
     "version": "0.0.1",
-    "description": "",
+    "description": "LYLWS",
     "author": "Instrate",
     "engines": {
         "npm": ">=10.5"
@@ -47,11 +47,9 @@
         "@types/express": "^5.0.0",
         "@types/node": "^22.10.7",
         "globals": "^16.0.0",
+        "instrate-style-preferences": "^1.0.1",
         "source-map-support": "^0.5.21",
         "tsconfig-paths": "^4.2.0",
         "typescript": "^5.7.3"
-    },
-    "optionalDependencies": {
-        "style-eslint": "./.style/versions/node18"
     }
 }

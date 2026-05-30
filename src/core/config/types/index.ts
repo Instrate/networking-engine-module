@@ -4,21 +4,26 @@ import { Type } from "class-transformer";
 import { IConfigApplication } from "./application";
 import { IConfigCore } from "./core";
 import { IConfigPlugins } from "./plugins";
+import { IConfigLocalization } from "@core/config/types/localization";
 
 export class IConfig {
     @ValidateNested()
     @Type(() => IConfigLogger)
-    readonly logger: IConfigLogger;
+    readonly logger!: IConfigLogger;
 
     @ValidateNested()
     @Type(() => IConfigApplication)
-    readonly application: IConfigApplication;
+    readonly application!: IConfigApplication;
 
     @ValidateNested()
     @Type(() => IConfigCore)
-    readonly core: IConfigCore;
+    readonly core!: IConfigCore;
 
     @ValidateNested()
     @Type(() => IConfigPlugins)
-    readonly plugins: IConfigPlugins;
+    readonly plugins!: IConfigPlugins;
+
+    @ValidateNested()
+    @Type(() => IConfigLocalization)
+    readonly localization!: IConfigLocalization;
 }

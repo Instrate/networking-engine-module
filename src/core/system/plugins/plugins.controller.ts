@@ -1,44 +1,45 @@
 import { Controller, Get, HttpStatus, Patch, Query } from "@nestjs/common";
-import { PluginsService } from "./plugins.service";
+import { PluginManagerService } from "./plugin-manager.service";
 import {
-    SystemPluginsGetVersionDtoQuery,
     SystemPluginsGetListDtoQuery,
+    SystemPluginsGetVersionDtoQuery,
     SystemPluginsPatchStateDtoQuery
 } from "./dto/running.dto";
 import { Throttle } from "@nestjs/throttler";
 
+@Throttle({})
 @Controller("system/plugin")
 export class PluginsController {
-    constructor(private readonly pluginsService: PluginsService) {}
+    constructor(private readonly pluginsService: PluginManagerService) {}
 
-    @Throttle({})
     @Get("list")
     async getList(@Query() query: SystemPluginsGetListDtoQuery) {
         return this.pluginsService.getList(query.extended, query?.state);
     }
 
-    @Throttle({})
     @Get("version")
     async getVersion(@Query() query: SystemPluginsGetVersionDtoQuery) {
-        const result = await this.pluginsService.executePluginEvent(
-            query.pluginName,
-            true,
-            null,
-            "version"
-        );
+        const result = "0v";
+        // await this.pluginsService.executePluginEvent(
+        //     query.pluginName,
+        //     true,
+        //     null,
+        //     "version"
+        // );
+
         return {
             version: result
         };
     }
 
-    @Throttle({})
     @Patch("state")
     async updateState(@Query() query: SystemPluginsPatchStateDtoQuery) {
-        const hasChanged = await this.pluginsService.changePluginState(
-            query.pluginName,
-            true,
-            query.newState
-        );
+        const hasChanged = false;
+        // await this.pluginsService.changePluginState(
+        //     query.pluginName,
+        //     true,
+        //     query.newState
+        // );
 
         if (!hasChanged) {
             return {
@@ -46,6 +47,7 @@ export class PluginsController {
                 data: { hasChanged }
             };
         }
+
         return {
             hasChanged
         };

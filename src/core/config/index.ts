@@ -3,7 +3,7 @@ import path from "node:path";
 import { IConfig } from "./types";
 import { validateSchemaThrowable } from "@core/system/validator";
 
-const configDir = path.join(__dirname, "../../config");
+const configDir = path.join(__dirname, "../../../config");
 
 function getConfigFiles(files: string[], exts: string[] = [".json"]) {
     return files.filter((file) => exts.some((ext) => file.endsWith(ext)));
@@ -32,7 +32,7 @@ function createConfigRecordNameToConfig(
 }
 
 class Config {
-    public readonly data: IConfig;
+    public readonly data!: IConfig;
 
     static singleton: Config;
 

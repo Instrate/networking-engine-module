@@ -1,81 +1,40 @@
+import { ValidateNested } from "class-validator";
 import {
-    IsArray,
-    IsBoolean,
-    IsEnum,
-    IsNotEmpty,
-    IsNumber,
-    IsString,
-    Max,
-    Min,
-    ValidateNested
-} from "class-validator";
-import { PortMax, PortMin } from "@core/constants/global";
-import {
-    EInjectableDestroyReason,
-    IPluginSettingDestroy,
-    IPluginSettings
+    IPluginSettingInit,
+    IPluginSettingInvoke,
+    IPluginSettings,
+    PluginSettingDestroy
 } from "@core/system/plugins/plugins.interface";
 import { Type } from "class-transformer";
+import { DatabaseSupportedProvider } from "@plugins/database/database.interfaces";
 
-export class DatabasePluginExtentionSettingsInit {}
+export class DatabasePluginExtentionSettingsInit implements IPluginSettingInit {}
 
-export class DatabasePluginExtentionSettingsInvoke {
-    @IsNotEmpty()
-    @IsString()
-    readonly type: string;
-
-    @IsNotEmpty()
-    @IsString()
-    readonly name: string;
-
-    @IsNotEmpty()
-    @IsString()
-    readonly host: string;
-
-    @IsNumber()
-    @Min(PortMin)
-    @Max(PortMax)
-    readonly port: number;
-
-    @IsNotEmpty()
-    @IsString()
-    readonly username: string;
-
-    @IsNotEmpty()
-    @IsString()
-    readonly password: string;
-
-    @IsNotEmpty()
-    @IsString()
-    readonly database: string;
-
-    @IsArray()
-    @IsNotEmpty({ each: true })
-    @IsString({ each: true })
-    readonly entities: Array<string> = [];
-
-    @IsBoolean()
-    readonly synchronize: boolean = true;
+export class DatabasePluginExtentionSettingsInvoke implements IPluginSettingInvoke {
+    @ValidateNested({ each: true })
+    @Type(() => Array<DatabaseSupportedProvider>)
+    supportedProviders!: ReadonlyArray<DatabaseSupportedProvider>;
 }
 
-export class DatabasePluginExtentionSettingsDestroy
-    implements IPluginSettingDestroy
-{
-    @IsNotEmpty()
-    @IsEnum(EInjectableDestroyReason)
-    readonly reason: EInjectableDestroyReason;
-}
+export class DatabasePluginExtentionSettingsDestroy extends PluginSettingDestroy {}
 
-export class DatabasePluginExtentionSettings implements IPluginSettings {
+type TDatabasePluginExtentionSettings = IPluginSettings<
+    "Db",
+    DatabasePluginExtentionSettingsInit,
+    DatabasePluginExtentionSettingsInvoke,
+    DatabasePluginExtentionSettingsDestroy
+>;
+
+export class DatabasePluginExtentionSettings implements TDatabasePluginExtentionSettings {
     @ValidateNested()
     @Type(() => DatabasePluginExtentionSettingsInit)
-    readonly initConfig: DatabasePluginExtentionSettingsInit;
+    readonly initConfig!: TDatabasePluginExtentionSettings["initConfig"];
 
     @ValidateNested()
     @Type(() => DatabasePluginExtentionSettingsInvoke)
-    readonly invokeConfig: DatabasePluginExtentionSettingsInvoke;
+    readonly invokeConfig!: TDatabasePluginExtentionSettings["invokeConfig"];
 
     @ValidateNested()
     @Type(() => DatabasePluginExtentionSettingsDestroy)
-    readonly destroyConfig: DatabasePluginExtentionSettingsDestroy;
+    readonly destroyConfig!: TDatabasePluginExtentionSettings["destroyConfig"];
 }

@@ -1,15 +1,12 @@
-import { IntString } from "@core/types/global";
-import { TVerNumNetComponent } from "@core/app/app.types";
+import { AServiceVersioned } from "@core/app/abstracts/service.abstract";
+import { TVersionedControllerMeta } from "@core/app/decorators/controller.decorator";
+import { Type } from "@nestjs/common";
 
 export abstract class AControllerVersioned<
-    Name extends string,
-    Version extends "string"
+    TMeta extends TVersionedControllerMeta = TVersionedControllerMeta,
+    Service extends Type<AServiceVersioned<TMeta>> = Type<
+        AServiceVersioned<TMeta>
+    >
 > {
-    protected abstract readonly version: IntString;
-
-    protected abstract readonly service: TVerNumNetComponent<
-        Name,
-        "service",
-        any
-    >;
+    protected constructor(protected readonly service: InstanceType<Service>) {}
 }

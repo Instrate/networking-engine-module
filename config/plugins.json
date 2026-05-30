@@ -1,23 +1,60 @@
 {
+    "options": {
+        "allowUnload": true,
+        "allowReload": true
+    },
     "list": [
         {
             "name": "database",
             "type": "module",
-            "extentions": [
+            "source": "@plugins",
+            "options": {
+                "initConfig": {
+                    "supportedProviders": [
+                        {
+                            "name": "typeorm",
+                            "versions": "any",
+                            "databaseTypeRestrictions": []
+                        }
+                    ]
+                },
+                "invokeConfig": {
+
+                },
+                "destroyConfig": {
+
+                }
+            }
+        },
+        {
+            "name": "sqlite",
+            "type": "module",
+            "source": "@plugins",
+            "dependencies": [
                 {
-                    "name": "sqlite",
-                    "type": "module",
-                    "options": {
-                        "init": {
+                    "name": "database"
+                }
+            ],
+            "options": {
+                "initConfig": {
+
+                },
+                "invokeConfig": {
+                    "instances": [
+                        {
                             "host": "localhost",
                             "port": 3306,
                             "username": "test",
                             "password": "test",
-                            "database": "test"
+                            "database": "test",
+                            "entities": []
                         }
-                    }
+                    ]
+                },
+                "destroyConfig": {
+
                 }
-            ]
+            }
         }
     ]
 }

@@ -58,7 +58,7 @@ export class RequestInterceptor implements NestInterceptor {
                     typeof response === "object" &&
                     !!(response as IResponse)?.status
                 ) {
-                    return response;
+                    return response as IResponse;
                 }
                 return {
                     data: response,

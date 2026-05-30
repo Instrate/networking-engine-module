@@ -1,5 +1,6 @@
 {
-    "port": 2848,
+    "port": 2849,
+    "isDynamicPortAllowed": false,
     "cluster": {
         "enable": true,
         "amount": 1,

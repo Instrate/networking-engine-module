@@ -22,7 +22,7 @@ export class ClusterFactory {
         }
 
         cluster.on("exit", (worker, code, signal) => {
-            let message = "Worker died.";
+            let message = `Worker died. with code: [${code}] and signal: ${signal}`;
             if (!config.application.cluster.restart) {
                 logger.error(message);
                 return;
