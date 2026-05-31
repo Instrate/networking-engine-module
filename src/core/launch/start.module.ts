@@ -1,10 +1,5 @@
 import "reflect-metadata";
-import {
-    Logger,
-    Module,
-    OnApplicationShutdown,
-    VersioningType
-} from "@nestjs/common";
+import { Logger, Module, OnApplicationShutdown } from "@nestjs/common";
 import { CoreModule } from "@core/core.module";
 import logger from "@logger";
 import { SystemModule } from "@core/system/system.module";
@@ -34,6 +29,7 @@ export class StartModule implements OnApplicationShutdown {
     static async createApplication(): Promise<TApp> {
         return NestFactory.create<NestFastifyApplication>(
             StartModule,
+            //new ExpressAdapter(),
             new FastifyAdapter(),
             {
                 logger: logger,
@@ -43,10 +39,10 @@ export class StartModule implements OnApplicationShutdown {
     }
 
     static applyApplicationSettings(app: TApp): TApp {
-        app.enableVersioning({
-            type: VersioningType.HEADER,
-            header: config.core.controllers.version.headers.api
-        });
+        // app.enableVersioning({
+        //     type: VersioningType.HEADER,
+        //     header: config.core.controllers.version.headers.api
+        // });
 
         app.enableShutdownHooks();
 
