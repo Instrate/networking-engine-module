@@ -14,6 +14,8 @@ import {
     NestFastifyApplication
 } from "@nestjs/platform-fastify";
 import config from "@config";
+import { IAppLaunchState } from "@core/launch/start.interface";
+import { StartService } from "@core/launch/start.service";
 
 type TApp = NestApplication | NestFastifyApplication;
 
@@ -32,7 +34,6 @@ export class StartModule implements OnApplicationShutdown {
     static async createApplication(): Promise<TApp> {
         return NestFactory.create<NestFastifyApplication>(
             StartModule,
-            // TODO: apply winston
             new FastifyAdapter(),
             {
                 logger: logger,
@@ -53,26 +54,27 @@ export class StartModule implements OnApplicationShutdown {
     }
 
     static async bootApplication(app: TApp) {
-        let hasStarted = false;
-        const isDynamicPortAllowed = config.application.isDynamicPortAllowed;
-        let appPort = config.application.port;
+        const appLaunchState: IAppLaunchState = {
+            error: false,
+            ready: false,
+            port: config.application.port
+        };
 
-        while (!hasStarted) {
-            try {
-                await app.listen(appPort, APP_HOST_DEFAULT, () => {
-                    logger.debug(`Application started on port ${appPort}`);
-                });
-                hasStarted = true;
-            } catch (err) {
-                // TODO: verify catch occurs
-                appPort++;
-                if (!isDynamicPortAllowed) {
-                    logger.error(err.message);
-                } else {
-                    logger.warn(err.message);
-                }
-            }
-        }
+        const startPromise = app
+            .listen(appLaunchState.port, APP_HOST_DEFAULT)
+            .then(() => StartService.handleStarted(appLaunchState));
+
+        const calcIfNotDone = () => {
+            return !appLaunchState.ready && !appLaunchState.error;
+        };
+
+        do {
+            await startPromise.catch(
+                StartService.rejectionCallback(appLaunchState)
+            );
+        } while (calcIfNotDone());
+
+        StartService.handleFinish(appLaunchState);
     }
 
     static async bootstrap() {

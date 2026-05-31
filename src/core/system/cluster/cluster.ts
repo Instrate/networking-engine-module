@@ -2,8 +2,6 @@ import cluster from "node:cluster";
 import config from "@config";
 import logger from "@logger";
 
-const numCpus = config.application.cluster.amount;
-
 export class ClusterFactory {
     static clusterize(callback: Function) {
         if (!config.application.cluster.enable) {
@@ -15,6 +13,8 @@ export class ClusterFactory {
             logger.debug("Cluster server started");
             return;
         }
+
+        const numCpus = config.application.cluster.amount;
 
         logger.debug("Master server started");
         for (let i = 0; i < numCpus; i++) {

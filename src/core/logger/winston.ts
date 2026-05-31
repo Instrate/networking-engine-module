@@ -15,11 +15,19 @@ function prepareMs(ms: string) {
 }
 
 function prepareLevel(level: string) {
-    const pad = 16;
+    const pad = 10;
     const levelPre = level.slice(0, 5);
     const levelName = level.slice(5, -4);
-    const res = `[${EAnsiColourSequence.Reset}${levelPre}${levelName.toUpperCase().padEnd(pad, " ")}${EAnsiColourSequence.Reset}]`;
-    return res;
+    const levelSequence = [
+        EAnsiColourSequence.Reset,
+        levelPre,
+        levelName.toUpperCase().padEnd(pad, " "),
+        EAnsiColourSequence.Reset
+    ];
+
+    const levelResult = levelSequence.join("");
+
+    return `[${levelResult}]`;
 }
 
 function prepareLevelUncolored(level: string) {
@@ -34,7 +42,7 @@ function printfConsole({
     label,
     ..._
 }: TransformableInfo) {
-    return `|${timestamp}| ${label} | - ${prepareLevel(level)} ${prepareMs(ms as string)}\n${message}\n`;
+    return `|${timestamp}| ${label} | - ${prepareLevel(level)} ${prepareMs(ms as string)}\n\t${message}`;
 }
 
 function printfFile({
