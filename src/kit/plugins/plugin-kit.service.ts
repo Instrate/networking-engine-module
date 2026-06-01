@@ -15,7 +15,7 @@ export abstract class KitPluginService<
 > implements IPluginService<TPluginConfig, false> {
     abstract readonly settings: TPluginConfig;
 
-    protected version: PluginVersion = "0.0.0";
+    public version: PluginVersion = "0.0.0";
 
     public get Version() {
         return this.version;

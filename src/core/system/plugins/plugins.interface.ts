@@ -26,23 +26,33 @@ export type TInjectableDataPurpose = TCreateTypeFromObjectEnum<
     typeof EInjectableDataPurpose
 >;
 
-export const EInjectableState = {
-    Found: "found",
-    AssignedBootIndex: "assignedBootIndex",
+export const EInjectableActiveState = {
     MissingDependency: "missingDependency",
     UninitializedDependencies: "uninitializedDependencies",
-    Loading: "loading",
     Loaded: "loaded",
     Running: "running",
-    Disabled: "disabled",
-    Error: "error"
+    Disabled: "disabled"
 } as const;
 
-export type PluginVersion = `${bigint}.${bigint}.${bigint}`;
+export type TInjectableActiveState = TCreateTypeFromObjectEnum<
+    typeof EInjectableActiveState
+>;
+
+export const EInjectableState = {
+    ...EInjectableActiveState,
+    Found: "found",
+    AssignedBootIndex: "assignedBootIndex",
+    Loading: "loading",
+    Error: "error"
+} as const;
 
 export type TInjectableState = TCreateTypeFromObjectEnum<
     typeof EInjectableState
 >;
+
+export type TInjectableUnknownState = typeof EInjectableState.Error;
+
+export type PluginVersion = `${bigint}.${bigint}.${bigint}`;
 
 export interface IInjectableModule<TInjectType> {
     state: TInjectableState;
@@ -284,19 +294,13 @@ export type TPluginModuleState = TPluginModuleWithState &
               dependencies: Readonly<IConfigPluginDependency>[];
           }
         | {
-              state: typeof EInjectableState.Error;
+              state: TInjectableUnknownState;
               stateDescription?: string;
               plugin?: Nullable<TPlugin>;
               dependencies?: Readonly<IConfigPluginDependency>[];
           }
         | {
-              state: Omit<
-                  TInjectableState,
-                  | typeof EInjectableState.Found
-                  | typeof EInjectableState.AssignedBootIndex
-                  | typeof EInjectableState.Loading
-                  | typeof EInjectableState.Error
-              >;
+              state: TInjectableActiveState;
               plugin: TPlugin;
               dependencies: Readonly<IConfigPluginDependency>[];
           }

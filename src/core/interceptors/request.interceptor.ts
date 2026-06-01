@@ -18,7 +18,7 @@ const responseMethodStatusMap = {
 };
 
 function parseRequest(request: FastifyRequest) {
-    return `${request.method}v${
+    return `${request.method}, iter=${
         request.headers?.[
             config.core.controllers.version.headers.api.toLowerCase()
         ]
@@ -27,7 +27,7 @@ function parseRequest(request: FastifyRequest) {
 
 function logRequest(request: FastifyRequest) {
     const requestParsed = `IN ${parseRequest(request)}`;
-    logger.verbose(JSON.stringify({ request: requestParsed }, null, 2));
+    logger.verbose(`request: ${requestParsed}`);
 }
 
 function logResponse(
@@ -36,13 +36,25 @@ function logResponse(
     data: unknown
 ) {
     const requestParsed = `OUT:${status} ${parseRequest(request)}`;
-    logger.debug(
-        JSON.stringify({ request: requestParsed, response: data }, null, 2)
+    const loggedData = [`request: ${requestParsed}`, `response: ${data}`].join(
+        "\n\t"
     );
+    logger.debug(loggedData);
 }
 
 function parseData(data: unknown) {
-    return data;
+    const cutOffLen = 100;
+    try {
+        const stringified = JSON.stringify(data);
+        if (stringified.length <= cutOffLen) {
+            return stringified;
+        }
+        return (
+            `Content-Length=${stringified.length}` +
+            `\n\t${stringified.slice(0, cutOffLen)}...`
+        );
+    } catch (e) {}
+    return "unparsable";
 }
 
 @Injectable()

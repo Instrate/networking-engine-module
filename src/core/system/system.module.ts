@@ -1,6 +1,6 @@
 import { ExecutionContext, Module } from "@nestjs/common";
 import { PluginManagerModule } from "./plugins/plugin-manager.module";
-import { ThrottlerLimitDetail, ThrottlerModule } from "@nestjs/throttler";
+import { ThrottlerLimitDetail } from "@nestjs/throttler";
 
 function logThrottleErrorMessage(
     context: ExecutionContext,
@@ -14,15 +14,15 @@ function logThrottleErrorMessage(
 @Module({
     imports: [
         // TODO: resolve not working
-        ThrottlerModule.forRoot({
-            throttlers: [
-                {
-                    ttl: 100,
-                    limit: 1
-                }
-            ],
-            errorMessage: logThrottleErrorMessage
-        }),
+        // ThrottlerModule.forRoot({
+        //     throttlers: [
+        //         {
+        //             ttl: 100,
+        //             limit: 1
+        //         }
+        //     ],
+        //     errorMessage: logThrottleErrorMessage
+        // }),
         PluginManagerModule
     ],
     providers: []

@@ -34,7 +34,6 @@ export class StartModule implements OnApplicationShutdown {
     static async createApplication(): Promise<TApp> {
         return NestFactory.create<NestFastifyApplication>(
             StartModule,
-            //new ExpressAdapter(),
             new FastifyAdapter(),
             {
                 logger: logger,

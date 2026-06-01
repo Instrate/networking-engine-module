@@ -1,10 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { LazyModuleLoader, ModuleRef } from "@nestjs/core";
 import {
+    EInjectableActiveState,
     EInjectableState,
     IPluginLoadingState,
     PluginImportReference,
     PluginStateDefaults,
+    TInjectableActiveState,
     TInjectableState,
     TPlugin,
     TPluginModuleState,
@@ -14,6 +16,7 @@ import logger from "@logger";
 import {
     EExtentionsType,
     IConfigPlugin,
+    IConfigPluginDependency,
     IPluginConfigLoaded,
     PluginKeyPathDefault
 } from "@core/config/types/plugins";
@@ -313,34 +316,76 @@ export class PluginManagerService {
     }
 
     public getList(extended: boolean, state?: TInjectableState) {
-        // const list = Array.from(this.pluginsMap.entries()).filter(
-        //     ([_, plugin]) => !state || plugin.state === state
-        // );
-        //
-        // const callback = !extended
-        //     ? ([plName]: [string, TPlugin]) => plName
-        //     : ([plName, plugin]: [string, TPlugin]) => {
-        //           if (plugin.state === EInjectableState.Error) {
-        //               return { name: plName };
-        //           }
-        //
-        //           const extentions = Array.from(
-        //               plugin.extentions.entries()
-        //           ).map(([extName, ext]) => {
-        //               return {
-        //                   name: extName,
-        //                   state: ext.state
-        //               };
-        //           });
-        //
-        //           return {
-        //               name: plName,
-        //               state: plugin.state,
-        //               extentions
-        //           };
-        //       };
-        //
-        // return list.map((val) => callback(val));
+        const plugins = Array.from(this.pluginsMap.entries());
+
+        const pluginsFilteredByState = plugins.filter(
+            ([_, plugin]) => !state || plugin.state === state
+        );
+
+        const getPluginsData: Parameters<typeof plugins.map>[0] = !extended
+            ? ([plName]) => plName
+            : ([plName, plugin]) => {
+                  if (plugin.state === EInjectableState.Error) {
+                      return { name: plName };
+                  }
+
+                  const dependenciesMetaMap = plugin.dependencies.reduce(
+                      (acc, { name, ...meta }) => {
+                          acc[name] = meta;
+                          return acc;
+                      },
+                      {} as Record<
+                          string,
+                          Omit<Readonly<IConfigPluginDependency>, "name">
+                      >
+                  );
+
+                  const dependenciesNames = Object.keys(dependenciesMetaMap);
+
+                  const dependenciesArr = plugins.filter(([plDepName, _]) =>
+                      dependenciesNames.includes(plDepName)
+                  );
+
+                  const dependenciesData = dependenciesArr.map(
+                      ([depName, depPlugin]) => {
+                          const depMeta = dependenciesMetaMap![depName];
+
+                          const output = {
+                              name: depName,
+                              state: depPlugin.state,
+                              version: {
+                                  min: depMeta?.minVersion ?? "unspecified",
+                                  max: depMeta?.maxVersion ?? "unspecified",
+                                  current: "unknown"
+                              }
+                          };
+
+                          if (
+                              Object.values(EInjectableActiveState).includes(
+                                  plugin.state as TInjectableActiveState
+                              )
+                          ) {
+                              output.version.current =
+                                  (
+                                      plugin as TPluginModuleState & {
+                                          state: TInjectableActiveState;
+                                      }
+                                  ).plugin?.container?.service?.version ??
+                                  output.version.current;
+                          }
+
+                          return output;
+                      }
+                  );
+
+                  return {
+                      name: plName,
+                      state: plugin.state,
+                      dependencies: dependenciesData
+                  };
+              };
+
+        return pluginsFilteredByState.map(getPluginsData);
     }
 
     private static logErrorAndThrowIfNecessary(
