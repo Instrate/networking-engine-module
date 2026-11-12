@@ -23,9 +23,12 @@ import {
 import { KitPluginModule } from "@kit/plugins/plugin-kit.module";
 import config from "@config";
 import { util } from "config";
-import path from "node:path";
 import { Mutable } from "@core/types/global";
-import { defaultPluginsPath } from "@core/system/plugins/util";
+import {
+    calcPluginSourcePath,
+    createModuleReferenceCallbackFromSource,
+    defaultPluginsPath
+} from "@core/system/plugins/util";
 import PluginException from "@core/handlers/exceptions/plugins";
 
 @Injectable()
@@ -51,16 +54,16 @@ export class PluginManagerService {
                                 ? defaultPluginsPath
                                 : plugin.source;
 
-                        const source = path.join(
+                        const source = calcPluginSourcePath(
                             prePath,
                             plugin.name,
-                            `${plugin.name}.module.js`
+                            "js"
                         );
 
                         const loaded: IPluginConfigLoaded = {
                             name: plugin.name,
-                            moduleReferenceCallback: () =>
-                                require(source)?.default,
+                            moduleReferenceCallback:
+                                createModuleReferenceCallbackFromSource(source),
                             dependencies:
                                 (plugin.dependencies as Mutable<
                                     IPluginConfigLoaded["dependencies"]
@@ -148,12 +151,14 @@ export class PluginManagerService {
         return pluginsOrdered;
     }
 
-    private retrievePluginDependencies(plugin: Readonly<IPluginConfigLoaded>) {
+    private retrievePluginDependencies(
+        plugin: Readonly<IPluginConfigLoaded>
+    ): PluginImportReference[] {
         const pluginDesc = this.pluginsMap.get(
             plugin.name
         ) as TPluginModuleWithState;
 
-        if (!pluginDesc?.dependencies) {
+        if (!pluginDesc?.dependencies?.length) {
             throw PluginException("InvalidState", {
                 name: plugin.name,
                 cause: EInjectableState.UninitializedDependencies
@@ -161,14 +166,14 @@ export class PluginManagerService {
         }
 
         // TODO: verify dependency state
-        const dependenciesRegisterOptions = pluginDesc!.dependencies.map(
+        const dependenciesRegisterOptions = pluginDesc.dependencies.map(
             (dependency) => {
                 const dependencyDesc = this.pluginsMap.get(dependency.name);
                 return (dependencyDesc as { plugin: TPlugin }).plugin;
             }
         );
 
-        const dependencyImports = dependenciesRegisterOptions?.reduce(
+        const dependencyImports = dependenciesRegisterOptions.reduce(
             (acc, dependency) => {
                 acc.push(dependency.entry);
                 return acc;
@@ -176,7 +181,6 @@ export class PluginManagerService {
             new Array<PluginImportReference>()
         );
 
-        // TODO: resolve type
         return dependencyImports;
     }
 
@@ -354,9 +358,9 @@ export class PluginManagerService {
                               name: depName,
                               state: depPlugin.state,
                               version: {
-                                  min: depMeta?.minVersion ?? "unspecified",
-                                  max: depMeta?.maxVersion ?? "unspecified",
-                                  current: "unknown"
+                                  min: depMeta?.minVersion ?? "-1",
+                                  max: depMeta?.maxVersion ?? "-1",
+                                  current: "-1"
                               }
                           };
 

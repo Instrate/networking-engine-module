@@ -101,3 +101,16 @@ export function getPlugins() {
 
     return plugins;
 }
+
+// INFO: dest module should be at path: folder/name/name.module.ext
+export function calcPluginSourcePath(
+    folder: string,
+    name: string,
+    ext: string = "js"
+) {
+    return path.join(folder, name, `${name}.module.${ext}`);
+}
+
+export function createModuleReferenceCallbackFromSource(source: string) {
+    return () => require(source)?.default;
+}
